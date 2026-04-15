@@ -6,6 +6,8 @@ import OvertimeRequestPreview from "../components/OvertimeRequestPerview";
 import { usePrintShortcut } from "../hooks/usePrintShortcut";
 import { useReactToPrint } from "react-to-print";
 import { useRef } from "react";
+import { useOvertime } from "../contexts/Overtime";
+import toast from "react-hot-toast";
 
 export const OvertimeRequest = () => {
   const { t } = useTranslation();
@@ -16,10 +18,21 @@ export const OvertimeRequest = () => {
     },
   });
 
+  const { requestForm } = useOvertime();
+
   const printRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: "attendance-report",
+    onBeforePrint: async () => {
+      if (
+        requestForm.watch("employees").filter((emp) => emp.selected).length ===
+        0
+      ) {
+        toast.error(t("overtime.request.selectEmployeesWarning"));
+        throw new Error(t("overtime.request.selectEmployeesWarning"));
+      }
+    },
   });
 
   return (
@@ -47,7 +60,7 @@ export const OvertimeRequest = () => {
         <Button size="sm" onClick={handlePrint}>
           <Printer size={20} />
         </Button>
-        <span>({t("overtime.request.print-hint")})</span>
+        <span>({t("general.print-hint")})</span>
       </div>
 
       {/* PDF-Preview */}
