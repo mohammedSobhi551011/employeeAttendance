@@ -81,13 +81,7 @@ function AttendanceFilterProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // const delayDebounce = setTimeout(() => {
-    // }, 3000);
     loadFilteredData(currentPage);
-
-    console.log("render");
-
-    // return () => clearTimeout(delayDebounce);
   }, [
     currentPage,
     watchedEmployeeId,
