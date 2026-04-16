@@ -19,10 +19,13 @@ function HomeFilterAttendanceForm({
   const { form, totalRecords } = useAttendanceFilter();
 
   return (
-    <div className="bg-white rounded-lg shadow-md mb-6 p-4">
+    <form className="bg-white rounded-lg shadow-md mb-6 p-4">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            className="block text-sm font-medium text-gray-700 mb-1"
+            htmlFor="employees-filter"
+          >
             {t ? t("home.filterByEmployee") : "Filter by Employee"}
           </label>
           <Controller
@@ -30,6 +33,7 @@ function HomeFilterAttendanceForm({
             name="employeeId"
             render={({ field }) => (
               <select
+                id="employees-filter"
                 value={field.value || ""}
                 onChange={field.onChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
@@ -56,6 +60,7 @@ function HomeFilterAttendanceForm({
                 value={field.value || ""}
                 onChange={field.onChange}
                 error={fieldState.error?.message}
+                id="from-date"
                 label={t ? t("home.filterFromDate") : "From Date"}
               />
             )}
@@ -72,12 +77,16 @@ function HomeFilterAttendanceForm({
                 onChange={field.onChange}
                 error={fieldState.error?.message}
                 label={t ? t("home.filterToDate") : "To Date"}
+                id="to-date"
               />
             )}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            className="block text-sm font-medium text-gray-700 mb-1"
+            htmlFor="status-filter"
+          >
             {t ? t("home.filterByStatus") : "Filter by Status"}
           </label>
           <Controller
@@ -88,6 +97,7 @@ function HomeFilterAttendanceForm({
                 value={field.value || ""}
                 onChange={field.onChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+                id="status-filter"
               >
                 <option value="">
                   {t ? t("home.allStatuses") : "All Statuses"}
@@ -117,7 +127,7 @@ function HomeFilterAttendanceForm({
             : `Found ${totalRecords} record(s)`}
         </p>
       </div>
-    </div>
+    </form>
   );
 }
 export default HomeFilterAttendanceForm;

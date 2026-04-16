@@ -97,7 +97,7 @@ export const OvertimeReport = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <form className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -122,6 +122,7 @@ export const OvertimeReport = () => {
                     type="date"
                     {...field}
                     label={t("overtime.report.fromDate")}
+                    id="from-date"
                   />
                 )}
               />
@@ -135,6 +136,7 @@ export const OvertimeReport = () => {
                     type="date"
                     {...field}
                     label={t("overtime.report.toDate")}
+                    id="to-date"
                   />
                 )}
               />
@@ -177,6 +179,6 @@ export const OvertimeReport = () => {
           )}
         </div>
       </div>
-    </div>
+    </form>
   );
 };
