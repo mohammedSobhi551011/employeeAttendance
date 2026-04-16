@@ -40,11 +40,15 @@ function AttendanceFilterProvider({ children }: { children: React.ReactNode }) {
     mode: "onChange",
     resolver: zodResolver(HomeFilterAttendanceFormSchema),
   });
-  const values = form.watch();
+  const watchedEmployeeId = form.watch("employeeId");
+  const watchedFromDate = form.watch("fromDate");
+  const watchedToDate = form.watch("toDate");
+  const watchedStatus = form.watch("status");
 
   const [filteredAttendance, setFilteredAttendance] = useState<
     AttendanceRecord[]
   >([]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const totalPages = Math.ceil(totalRecords / ITEMS_PER_PAGE);
@@ -52,10 +56,10 @@ function AttendanceFilterProvider({ children }: { children: React.ReactNode }) {
   const loadFilteredData = async (page: number = 1) => {
     try {
       const result = await getAttendanceFiltered({
-        employee_id: values.employeeId || null,
-        from_date: values.fromDate || null,
-        to_date: values.toDate || null,
-        status: values.status || null,
+        employee_id: watchedEmployeeId || null,
+        from_date: watchedFromDate || null,
+        to_date: watchedToDate || null,
+        status: watchedStatus || null,
       });
       const data = Array.isArray(result) ? result : [];
       setTotalRecords(data.length);
@@ -77,12 +81,20 @@ function AttendanceFilterProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      loadFilteredData(currentPage);
-    }, 100);
+    // const delayDebounce = setTimeout(() => {
+    // }, 3000);
+    loadFilteredData(currentPage);
 
-    return () => clearTimeout(delayDebounce);
-  }, [currentPage, loadFilteredData, values]);
+    console.log("render");
+
+    // return () => clearTimeout(delayDebounce);
+  }, [
+    currentPage,
+    watchedEmployeeId,
+    watchedFromDate,
+    watchedStatus,
+    watchedToDate,
+  ]);
 
   return (
     <AttendanceFilterContext
