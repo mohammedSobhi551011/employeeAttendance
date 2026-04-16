@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { useAttendance } from "../hooks/useAttendance";
 import { Button } from "../components/ui/Button";
@@ -12,7 +12,6 @@ import {
 import {
   AttendanceRecord,
   AttendanceStatuses,
-  Employee,
   TAttendanceStatus,
 } from "../types";
 import { getAttendanceFiltered } from "../utils/storage";
@@ -24,18 +23,33 @@ import { motion } from "framer-motion";
 
 export const Attendance = () => {
   const now = new Date();
+  const { employees } = useEmployees();
+  const defaultEmployeesData = useMemo(
+    () =>
+      employees.map((emp) => ({
+        id: emp.id,
+        name: emp.name,
+        jobNumber: emp.jobNumber,
+        status: "Present" as TAttendanceStatus,
+        hoursLate: "",
+        overtimeHours: "",
+        selected: false,
+      })),
+    [employees],
+  );
+
   const form = useForm<AttendanceFormData>({
     defaultValues: {
       date: now.toISOString().split("T")[0],
       status: "Present",
       overtimeHours: "",
-      employees: [],
+      employeesData: [...defaultEmployeesData],
     },
+    mode: "onChange",
     resolver: zodResolver(AttendanceFormSchema),
   });
   const navigate = useNavigate();
 
-  const { employees } = useEmployees();
   const { addMultipleRecords } = useAttendance();
   const [todayAttendanceEmployees, setTodayAttendanceEmployees] = useState<
     string[]
@@ -43,49 +57,36 @@ export const Attendance = () => {
 
   const { t } = useTranslation();
 
-  const status = form.watch("status");
-  const watchedEmployees = form.watch("employees");
+  const watchedStatus = form.watch("status");
+  const watchedEmployeesData = form.watch("employeesData");
   const watchedDate = form.watch("date");
   const watchedOvertimeHours = form.watch("overtimeHours");
 
-  const handleEmployeeToggle = (employeeId: string) => {
-    const employees = form.getValues("employees");
-    const exists = employees.find((emp) => emp.id === employeeId);
+  const eligibleEmployees = employees.filter(
+    (emp) => !todayAttendanceEmployees.includes(emp.id.toString()),
+  );
 
-    if (exists) {
-      form.setValue(
-        "employees",
-        employees.filter((emp) => emp.id !== employeeId),
-      );
-    } else {
-      form.setValue("employees", [
-        ...employees,
-        {
-          id: employeeId,
-          status,
-          hoursLate: "",
-          overtimeHours: "",
-        },
-      ]);
-    }
-  };
+  useEffect(() => {
+    form.setValue("employeesData", defaultEmployeesData);
+  }, [defaultEmployeesData]);
 
   // Set all selected employees' status
   useEffect(() => {
-    const currentEmployees = watchedEmployees;
     form.setValue(
-      "employees",
-      currentEmployees.map((emp) => ({
-        ...emp,
-        status,
+      "employeesData",
+      watchedEmployeesData.map((data) => ({
+        ...data,
+        status: watchedStatus,
         overtimeHours:
-          status === "Absent" || status === "Leave" ? "" : emp.overtimeHours,
+          watchedStatus === "Absent" || watchedStatus === "Leave"
+            ? ""
+            : data.overtimeHours,
       })),
     );
-    form.clearErrors("employees");
-    if (status === "Absent" || status === "Leave")
+    form.clearErrors("employeesData");
+    if (watchedStatus === "Absent" || watchedStatus === "Leave")
       form.setValue("overtimeHours", "");
-  }, [status]);
+  }, [watchedStatus]);
 
   useEffect(() => {
     getAttendanceFiltered({
@@ -100,16 +101,16 @@ export const Attendance = () => {
 
   useEffect(() => {
     form.setValue(
-      "employees",
-      watchedEmployees.map((emp) => ({
-        ...emp,
+      "employeesData",
+      watchedEmployeesData.map((data) => ({
+        ...data,
         overtimeHours: watchedOvertimeHours,
       })),
     );
   }, [watchedOvertimeHours]);
 
   const onSubmit = (data: AttendanceFormData) => {
-    if (data.employees.length === 0) {
+    if (data.employeesData.length === 0) {
       toast.error(
         t
           ? t("attendance.selectEmployeesWarning")
@@ -118,7 +119,7 @@ export const Attendance = () => {
       return;
     }
 
-    const records = data.employees.map((emp, index) => {
+    const records = data.employeesData.map((emp, index) => {
       const record: AttendanceRecord = {
         employeeId: emp.id,
         date: data.date,
@@ -132,7 +133,7 @@ export const Attendance = () => {
 
       if (emp.status === "Late") {
         if (emp.hoursLate.length === 0)
-          form.setError(`employees.${index}.hoursLate`, {
+          form.setError(`employeesData.${index}.hoursLate`, {
             message: t("attendance.hoursLateRequired"),
           });
 
@@ -141,7 +142,7 @@ export const Attendance = () => {
 
       if (emp.status === "Overtime") {
         if (emp.overtimeHours.length === 0)
-          form.setError(`employees.${index}.overtimeHours`, {
+          form.setError(`employeesData.${index}.overtimeHours`, {
             message: t("attendance.overtimeHoursRequired"),
           });
 
@@ -151,12 +152,14 @@ export const Attendance = () => {
     });
 
     try {
-      if (!form.formState.errors.employees) {
+      if (!form.formState.errors.employeesData) {
         addMultipleRecords(records);
         toast.success(
           t
-            ? t("attendance.markedSuccess", { count: data.employees.length })
-            : `Attendance marked for ${data.employees.length} employee(s)`,
+            ? t("attendance.markedSuccess", {
+                count: data.employeesData.length,
+              })
+            : `Attendance marked for ${data.employeesData.length} employee(s)`,
         );
         form.reset();
         navigate("/");
@@ -230,9 +233,9 @@ export const Attendance = () => {
                   )}
                 />
               </div>
-              {status !== "Absent" &&
-                status !== "Leave" &&
-                watchedEmployees.length > 0 && (
+              {watchedStatus !== "Absent" &&
+                watchedStatus !== "Leave" &&
+                watchedEmployeesData.length > 0 && (
                   <div>
                     <Controller
                       control={form.control}
@@ -265,9 +268,9 @@ export const Attendance = () => {
                 <label className="block text-sm font-medium text-gray-700">
                   {t
                     ? t("attendance.selectEmployeesLabel", {
-                        count: watchedEmployees.length,
+                        count: watchedEmployeesData.length,
                       })
-                    : `Select Employees * (${watchedEmployees.length} selected)`}
+                    : `Select Employees * (${watchedEmployeesData.length} selected)`}
                 </label>
               </div>
               {/* Select All Checkbox  */}
@@ -276,33 +279,30 @@ export const Attendance = () => {
                   type="checkbox"
                   label={t ? t("attendance.selectAll") : "Select All"}
                   checked={
-                    watchedEmployees.length ===
-                      employees.filter(
-                        (emp) =>
-                          !todayAttendanceEmployees.includes(emp.id.toString()),
-                      ).length &&
-                    employees.filter(
-                      (emp) =>
-                        !todayAttendanceEmployees.includes(emp.id.toString()),
-                    ).length > 0
+                    eligibleEmployees.length ===
+                    watchedEmployeesData.filter((data) => data.selected).length
                   }
                   onChange={(e) => {
-                    const eligibleEmployees = employees.filter(
-                      (emp) =>
-                        !todayAttendanceEmployees.includes(emp.id.toString()),
-                    );
                     if (e.target.checked) {
                       form.setValue(
-                        "employees",
-                        eligibleEmployees.map((emp) => ({
-                          id: emp.id,
-                          status: status,
-                          hoursLate: "",
-                          overtimeHours: "",
-                        })),
+                        "employeesData",
+                        watchedEmployeesData.map((data) => {
+                          if (
+                            eligibleEmployees.some((emp) => emp.id === data.id)
+                          ) {
+                            return { ...data, selected: true };
+                          }
+                          return { ...data, selected: false };
+                        }),
                       );
                     } else {
-                      form.setValue("employees", []);
+                      form.setValue(
+                        "employeesData",
+                        watchedEmployeesData.map((data) => ({
+                          ...data,
+                          selected: false,
+                        })),
+                      );
                     }
                   }}
                   id="select-all-employees"
@@ -311,27 +311,21 @@ export const Attendance = () => {
 
               {/* Employee List */}
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {employees.length === 0 ? (
+                {watchedEmployeesData.length === 0 ? (
                   <p className="text-gray-500 text-center py-4">
                     {t
                       ? t("home.noEmployees")
                       : "No employees found. Please add employees first."}
                   </p>
                 ) : (
-                  employees.map((employee, index) => {
-                    const selected = watchedEmployees.some(
-                      (emp) => emp.id === employee.id,
-                    );
+                  watchedEmployeesData.map((data, index) => {
                     const hasAttendanceToday =
-                      todayAttendanceEmployees.includes(employee.id.toString());
+                      todayAttendanceEmployees.includes(data.id.toString());
                     return (
                       <EmployeesSelectionItem
                         key={index + "-employee-selection"}
-                        employee={employee}
                         form={form}
-                        handleEmployeeToggle={handleEmployeeToggle}
                         hasAttendanceToday={hasAttendanceToday}
-                        selected={selected}
                         index={index}
                       />
                     );
@@ -356,127 +350,133 @@ export const Attendance = () => {
 };
 
 interface IEmployeesSelectionItemProps {
-  selected: boolean;
   hasAttendanceToday: boolean;
-  employee: Employee;
   index: number;
-  handleEmployeeToggle: (id: string) => void;
   form: UseFormReturn<AttendanceFormData>;
 }
 
 const EmployeesSelectionItem = ({
   hasAttendanceToday,
-  selected,
-  employee,
-  handleEmployeeToggle,
   form,
   index,
 }: IEmployeesSelectionItemProps) => {
   const { t } = useTranslation();
+  const employeeData = form.watch(`employeesData.${index}`);
   return (
-    <motion.div
-      whileTap={!hasAttendanceToday ? { scale: 0.95 } : {}}
-      onClick={() => {
-        if (!hasAttendanceToday) handleEmployeeToggle(employee.id);
-      }}
-      className={` border rounded-lg p-3 transition-colors  cursor-pointer ${
-        selected
-          ? "bg-blue-50 border-blue-300"
-          : hasAttendanceToday
-            ? "bg-gray-50 border-gray-300"
-            : "bg-white border-gray-200 hover:border-blue-300"
-      }`}
-    >
-      <div className="flex gap-3 mb-3">
-        <Input
-          type="checkbox"
-          checked={selected || hasAttendanceToday}
-          onChange={() => handleEmployeeToggle(employee.id)}
-          disabled={hasAttendanceToday}
-          className="border-4 border-black"
-          id={employee.id}
-        />
-        <label
-          htmlFor={employee.id}
-          className={`text-sm md:text-base font-medium select-none ${
-            hasAttendanceToday ? "opacity-50 text-gray-600" : "text-gray-900"
+    <Controller
+      control={form.control}
+      name={`employeesData.${index}.selected`}
+      render={({ field: selectedField }) => (
+        <motion.div
+          whileTap={!hasAttendanceToday ? { scale: 0.95 } : {}}
+          onClick={() => {
+            if (!hasAttendanceToday)
+              selectedField.onChange(!selectedField.value);
+          }}
+          className={` border rounded-lg p-3 transition-colors  cursor-pointer ${
+            selectedField.value
+              ? "bg-blue-50 border-blue-300"
+              : hasAttendanceToday
+                ? "bg-gray-50 border-gray-300"
+                : "bg-white border-gray-200 hover:border-blue-300"
           }`}
         >
-          {employee.name}
-        </label>
-        {hasAttendanceToday && (
-          <span className="text-xs text-gray-500 ml-auto">
-            {t ? t("attendance.alreadyMarked") : "Already marked"}
-          </span>
-        )}
-      </div>
-
-      {selected && (
-        <div className="grid grid-cols-1 gap-3 ml-8">
-          <Controller
-            control={form.control}
-            name={`employees.${index}.status`}
-            render={({ field }) => (
-              <select
-                value={field.value}
-                onChange={(e) => {
-                  const value = e.target.value as TAttendanceStatus;
-                  field.onChange(value);
-                }}
-                className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {AttendanceStatuses.map((status) => (
-                  <option key={status} value={status}>
-                    {t ? t(`statuses.${status}`) : status}
-                  </option>
-                ))}
-              </select>
-            )}
-          />
-
-          {form.watch(`employees.${index}.status`) === "Late" && (
-            <Controller
-              control={form.control}
-              name={`employees.${index}.hoursLate`}
-              render={({ field, fieldState }) => (
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  {...field}
-                  error={fieldState.error?.message}
-                  placeholder={t ? t("home.enterHoursLate") : "Hours late"}
-                  label={t("attendance.hoursLate")}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              )}
+          <div className="flex gap-3 mb-3">
+            <Input
+              type="checkbox"
+              checked={selectedField.value || hasAttendanceToday}
+              onChange={(e) => selectedField.onChange(!e.currentTarget.checked)}
+              disabled={hasAttendanceToday}
+              className="border-4 border-black"
+              id={employeeData.id}
             />
-          )}
+            <label
+              htmlFor={employeeData.id}
+              className={`text-sm md:text-base font-medium select-none ${
+                hasAttendanceToday
+                  ? "opacity-50 text-gray-600"
+                  : "text-gray-900"
+              }`}
+            >
+              {employeeData.name}
+            </label>
+            {hasAttendanceToday && (
+              <span className="text-xs text-gray-500 ml-auto">
+                {t ? t("attendance.alreadyMarked") : "Already marked"}
+              </span>
+            )}
+          </div>
 
-          {form.watch(`employees.${index}.status`) !== "Absent" &&
-            form.watch(`employees.${index}.status`) !== "Leave" && (
+          {selectedField.value && (
+            <div className="grid grid-cols-1 gap-3 ml-8">
               <Controller
                 control={form.control}
-                name={`employees.${index}.overtimeHours`}
-                render={({ field, fieldState }) => (
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.5"
-                    label={t("attendance.overtimeHours")}
-                    {...field}
-                    placeholder={
-                      t ? t("attendance.enterOvertimeHours") : "Overtime hours"
-                    }
-                    error={fieldState.error?.message}
+                name={`employeesData.${index}.status`}
+                render={({ field: statusField }) => (
+                  <select
+                    value={statusField.value}
+                    onChange={(e) => {
+                      const value = e.target.value as TAttendanceStatus;
+                      statusField.onChange(value);
+                    }}
+                    className="px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     onClick={(e) => e.stopPropagation()}
-                  />
+                  >
+                    {AttendanceStatuses.map((status) => (
+                      <option key={status} value={status}>
+                        {t ? t(`statuses.${status}`) : status}
+                      </option>
+                    ))}
+                  </select>
                 )}
               />
-            )}
-        </div>
+
+              {employeeData.status === "Late" && (
+                <Controller
+                  control={form.control}
+                  name={`employeesData.${index}.hoursLate`}
+                  render={({ field: hoursLateField, fieldState }) => (
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.5"
+                      {...hoursLateField}
+                      error={fieldState.error?.message}
+                      placeholder={t ? t("home.enterHoursLate") : "Hours late"}
+                      label={t("attendance.hoursLate")}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
+                />
+              )}
+
+              {employeeData.status !== "Absent" &&
+                employeeData.status !== "Leave" && (
+                  <Controller
+                    control={form.control}
+                    name={`employeesData.${index}.overtimeHours`}
+                    render={({ field: overtimeHoursField, fieldState }) => (
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        label={t("attendance.overtimeHours")}
+                        {...overtimeHoursField}
+                        placeholder={
+                          t
+                            ? t("attendance.enterOvertimeHours")
+                            : "Overtime hours"
+                        }
+                        error={fieldState.error?.message}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
+                  />
+                )}
+            </div>
+          )}
+        </motion.div>
       )}
-    </motion.div>
+    />
   );
 };

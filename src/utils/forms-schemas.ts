@@ -3,13 +3,16 @@ import { AttendanceStatuses } from "../types";
 import { t } from "i18next";
 
 export const AttendanceFormSchema = z.object({
-  employees: z
+  employeesData: z
     .array(
       z.object({
         id: z.string(),
+        name: z.string().nullable(),
+        jobNumber: z.string().nullable(),
         status: z.enum(AttendanceStatuses, "Status is required"),
         hoursLate: z.string(),
         overtimeHours: z.string(),
+        selected: z.boolean(),
       }),
     )
     .min(1, t("attendance.selectEmployeesWarning")),
