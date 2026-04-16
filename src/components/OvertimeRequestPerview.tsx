@@ -104,7 +104,7 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
               <td></td>
               <td>{index + 1}</td>
               <td></td>
-              <td>{emp.name}</td>
+              <td className="text-start ps-4">{emp.name}</td>
               <td>{emp.jobNumber}</td>
               <td></td>
               <td>{emp.from}</td>

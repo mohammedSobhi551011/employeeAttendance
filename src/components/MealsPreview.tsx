@@ -39,8 +39,10 @@ const MealsPreview = forwardRef<HTMLDivElement, IMealsPreviewProps>(
                 className={`${index % 2 === 0 ? "bg-blue-200" : "bg-blue-100"} font-bold`}
               >
                 <td className="border border-blue-50">{index + 1}</td>
-                <td className="border border-blue-50">{emp.name}</td>
-                <td className="border border-blue-50">{emp.jobNumber}</td>
+                <td className="border border-blue-50 text-start ps-4">
+                  {emp.name}
+                </td>
+                <td className="border border-blue-50 ">{emp.jobNumber}</td>
               </tr>
             ))}
             {employees.length < 30 &&
