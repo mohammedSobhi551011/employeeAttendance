@@ -1,7 +1,7 @@
 {
-  "name": "attendance",
+  "name": "employees-management-system",
   "private": true,
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,7 +11,7 @@
     "tauri": "tauri dev",
     "tauri:build": "tauri build",
     "android:build": "cd src-tauri/gen/android && ./gradlew installDebug -x installDebugAndroidTest",
-    "android:run": "adb shell monkey -p com.mohammed.attendance 1",
+    "android:run": "adb shell monkey -p com.mohammed.employees-management-system 1",
     "android": "concurrently \"npm run dev\" \"npm run android:build-run\"",
     "android:build-run": "npm run android:build && npm run android:run"
   },

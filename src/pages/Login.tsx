@@ -111,7 +111,7 @@ export default function Login() {
 
         {/* Footer */}
         <p className="text-center text-blue-100 text-xs md:text-sm mt-6">
-          © 2026 Attendance Management System
+          © 2026 Employees Management System
         </p>
       </div>
     </div>
