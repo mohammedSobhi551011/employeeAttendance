@@ -112,11 +112,11 @@
     "transportationPlaceholder": "Transportation",
     "create-form": {
       "name-min-error": "Name is required and must be at least 3 characters",
-      "name-max-error": "Name should not exceed 20 characters",
+      "name-max-error": "Name should not exceed 25 characters",
       "jobNumber-min-error": "Job number is required and must be a number",
       "jobNumber-max-error": "Job number should not exceed 6 digits",
-      "transportation-min-error": "Transportation is required",
-      "transportation-max-error": "Transportation should not exceed 15 characters"
+      "transportation-min-error": "Transportation is required and must be at least 3 characters",
+      "transportation-max-error": "Transportation should not exceed 20 characters"
     }
   },
   "overtime": {

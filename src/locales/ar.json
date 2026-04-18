@@ -112,11 +112,11 @@
     "transportationPlaceholder": "الدورة",
     "create-form": {
       "name-min-error": "الاسم مطلوب و يجب أن يكون على الأقل 3 أحرف",
-      "name-max-error": "يجب الا يتخطى الاسم 20 حرفاً",
+      "name-max-error": "يجب الا يتخطى الاسم 25 حرفاً",
       "jobNumber-min-error": "رقم الوظيفة مطلوب و يجب أن يكون رقمًا",
       "jobNumber-max-error": "رقم الوظيفة يجب الا يتخظى 6 ارقام",
-      "transportation-min-error": "الدورة مطلوبة",
-      "transportation-max-error": "الدورة يجب الا تتخطي 15 حرفاً"
+      "transportation-min-error": "الدورة مطلوبة و يجب أن تكون على الأقل 3 أحرف",
+      "transportation-max-error": "الدورة يجب الا تتخطي 20 حرفاً"
     }
   },
   "overtime": {

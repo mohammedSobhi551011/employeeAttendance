@@ -9,6 +9,7 @@ import { AttendanceRecord } from "../types";
 import { getAttendanceFiltered } from "../utils/storage";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import useZodSchema from "../hooks/useZodSchema";
 
 interface IAttendanceFilterContext {
   form: UseFormReturn<HomeFilterAttendanceFormData>;
@@ -30,6 +31,7 @@ const ITEMS_PER_PAGE = 10;
 function AttendanceFilterProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const getTodayDate = () => new Date().toISOString().split("T")[0];
+  const schema = useZodSchema(HomeFilterAttendanceFormSchema);
   const form = useForm<HomeFilterAttendanceFormData>({
     defaultValues: {
       employeeId: "",
@@ -38,8 +40,9 @@ function AttendanceFilterProvider({ children }: { children: React.ReactNode }) {
       status: null,
     },
     mode: "onChange",
-    resolver: zodResolver(HomeFilterAttendanceFormSchema),
+    resolver: zodResolver(schema),
   });
+
   const watchedEmployeeId = form.watch("employeeId");
   const watchedFromDate = form.watch("fromDate");
   const watchedToDate = form.watch("toDate");

@@ -5,17 +5,19 @@ import { LoginFormData, LoginFormSchema } from "../utils/forms-schemas";
 import { Input } from "../components/ui/Input";
 import { LogIn } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useZodSchema from "../hooks/useZodSchema";
 
 const USERNAME = "AhmedLotfy";
 const PASSWORD = "2698";
 
 export default function Login() {
+  const schema = useZodSchema(LoginFormSchema);
   const form = useForm<LoginFormData>({
     defaultValues: {
       username: "",
       password: "",
     },
-    resolver: zodResolver(LoginFormSchema),
+    resolver: zodResolver(schema),
   });
   const navigate = useNavigate();
 

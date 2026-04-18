@@ -10,6 +10,7 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { Employee } from "../../types";
 import { useEmployees } from "../../contexts/Employees";
+import useZodSchema from "../../hooks/useZodSchema";
 
 interface ICreateEmployeeFormProps {
   onCancel: () => void;
@@ -24,6 +25,7 @@ function CreateUpdateEmployeeForm({
 }: ICreateEmployeeFormProps) {
   const { addEmployee, updateEmployee } = useEmployees();
   const { t } = useTranslation();
+  const schema = useZodSchema(EmployeeFormSchema);
   const form = useForm<EmployeeFormData>({
     defaultValues:
       action.type === "update"
@@ -37,7 +39,7 @@ function CreateUpdateEmployeeForm({
             jobNumber: "",
             transportation: "",
           },
-    resolver: zodResolver(EmployeeFormSchema),
+    resolver: zodResolver(schema),
   });
 
   const onSubmit = async (data: EmployeeFormData) => {

@@ -1,3 +1,5 @@
+import z from "zod";
+
 export interface ITableColumn<T> {
   key: keyof T;
   label: string;
@@ -52,3 +54,7 @@ export type TAttendanceStatus =
   | "Night"
   | "Errand"
   | "Overtime";
+
+export type InferSchema<T extends (...args: any) => any> = z.infer<
+  ReturnType<T>
+>;

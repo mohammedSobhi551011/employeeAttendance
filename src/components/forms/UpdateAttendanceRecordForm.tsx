@@ -14,6 +14,7 @@ import {
 import toast from "react-hot-toast";
 import { useAttendance } from "../../hooks/useAttendance";
 import { Button } from "../ui/Button";
+import useZodSchema from "../../hooks/useZodSchema";
 
 interface IUpdateAttendanceRecordProps {
   record: AttendanceRecord;
@@ -29,6 +30,7 @@ function UpdateAttendanceRecordForm({
   onSuccess,
 }: IUpdateAttendanceRecordProps) {
   const { t } = useTranslation();
+  const schema = useZodSchema(UpdateAttendanceRecordFormSchema);
   const form = useForm<UpdateAttendanceRecordFormData>({
     defaultValues: {
       status: record.status as TAttendanceStatus,
@@ -37,7 +39,7 @@ function UpdateAttendanceRecordForm({
       overtimeHours: record.overtimeHours,
       note: record.note,
     },
-    resolver: zodResolver(UpdateAttendanceRecordFormSchema),
+    resolver: zodResolver(schema),
   });
 
   const { updateAttendanceRecord } = useAttendance();
