@@ -18,7 +18,6 @@ import { getAttendanceFiltered } from "../utils/storage";
 import { Input } from "../components/ui/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEmployees } from "../contexts/Employees";
-
 import { motion } from "framer-motion";
 
 export const Attendance = () => {
@@ -110,7 +109,10 @@ export const Attendance = () => {
   }, [watchedOvertimeHours]);
 
   const onSubmit = (data: AttendanceFormData) => {
-    if (data.employeesData.length === 0) {
+    const selectedEmployees = data.employeesData.filter(
+      (data) => data.selected,
+    );
+    if (selectedEmployees.length === 0) {
       toast.error(
         t
           ? t("attendance.selectEmployeesWarning")
@@ -119,7 +121,7 @@ export const Attendance = () => {
       return;
     }
 
-    const records = data.employeesData.map((emp, index) => {
+    const records = selectedEmployees.map((emp, index) => {
       const record: AttendanceRecord = {
         employeeId: emp.id,
         date: data.date,
@@ -157,9 +159,9 @@ export const Attendance = () => {
         toast.success(
           t
             ? t("attendance.markedSuccess", {
-                count: data.employeesData.length,
+                count: selectedEmployees.length,
               })
-            : `Attendance marked for ${data.employeesData.length} employee(s)`,
+            : `Attendance marked for ${selectedEmployees.length} employee(s)`,
         );
         form.reset();
         navigate("/");
@@ -268,9 +270,11 @@ export const Attendance = () => {
                 <label className="block text-sm font-medium text-gray-700">
                   {t
                     ? t("attendance.selectEmployeesLabel", {
-                        count: watchedEmployeesData.length,
+                        count: watchedEmployeesData.filter(
+                          (data) => data.selected,
+                        ).length,
                       })
-                    : `Select Employees * (${watchedEmployeesData.length} selected)`}
+                    : `Select Employees * (${watchedEmployeesData.filter((data) => data.selected).length} selected)`}
                 </label>
               </div>
               {/* Select All Checkbox  */}
