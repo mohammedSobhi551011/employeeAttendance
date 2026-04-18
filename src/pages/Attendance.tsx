@@ -111,7 +111,54 @@ export const Attendance = () => {
     );
   }, [watchedOvertimeHours]);
 
-  const onSubmit = (data: AttendanceFormData) => {
+  const prepareRecords = ({
+    employeesData,
+    date,
+  }: Pick<AttendanceFormData, "employeesData" | "date">) => {
+    let hasError = false;
+    const records: AttendanceRecord[] = [];
+    for (let index = 0; index < employeesData.length; index++) {
+      const emp = employeesData[index];
+      if (!emp.selected) continue;
+      const record: AttendanceRecord = {
+        employeeId: emp.id,
+        date,
+        status: emp.status.toString(),
+        hoursLate: emp.hoursLate ? Number(emp.hoursLate) : null,
+        overtimeHours: emp.overtimeHours ? Number(emp.overtimeHours) : null,
+        id: (Date.now() + Math.random()).toString(), // simple unique ID generation
+        jobNumber: null,
+        note: null,
+      };
+
+      if (emp.status === "Late") {
+        if (emp.hoursLate.length === 0) {
+          form.setError(`employeesData.${index}.hoursLate`, {
+            message: t("attendance.hoursLateRequired"),
+          });
+          hasError = true;
+        }
+
+        record.hoursLate = parseFloat(emp.hoursLate);
+      }
+
+      if (emp.status === "Overtime") {
+        if (emp.overtimeHours.length === 0) {
+          form.setError(`employeesData.${index}.overtimeHours`, {
+            message: t("attendance.overtimeHoursRequired"),
+          });
+          hasError = true;
+        }
+
+        record.overtimeHours = parseFloat(emp.overtimeHours);
+      }
+      records.push(record);
+    }
+
+    return { hasError, records };
+  };
+
+  const onSubmit = async (data: AttendanceFormData) => {
     const selectedEmployees = data.employeesData.filter(
       (data) => data.selected,
     );
@@ -124,41 +171,14 @@ export const Attendance = () => {
       return;
     }
 
-    const records = selectedEmployees.map((emp, index) => {
-      const record: AttendanceRecord = {
-        employeeId: emp.id,
-        date: data.date,
-        status: emp.status.toString(),
-        hoursLate: emp.hoursLate ? Number(emp.hoursLate) : null,
-        overtimeHours: emp.overtimeHours ? Number(emp.overtimeHours) : null,
-        id: (Date.now() + Math.random()).toString(), // simple unique ID generation
-        jobNumber: null,
-        note: null,
-      };
-
-      if (emp.status === "Late") {
-        if (emp.hoursLate.length === 0)
-          form.setError(`employeesData.${index}.hoursLate`, {
-            message: t("attendance.hoursLateRequired"),
-          });
-
-        record.hoursLate = parseFloat(emp.hoursLate);
-      }
-
-      if (emp.status === "Overtime") {
-        if (emp.overtimeHours.length === 0)
-          form.setError(`employeesData.${index}.overtimeHours`, {
-            message: t("attendance.overtimeHoursRequired"),
-          });
-
-        record.overtimeHours = parseFloat(emp.overtimeHours);
-      }
-      return record;
+    const { records, hasError } = prepareRecords({
+      date: data.date,
+      employeesData: data.employeesData,
     });
 
     try {
-      if (!form.formState.errors.employeesData) {
-        addMultipleRecords(records);
+      if (!hasError) {
+        await addMultipleRecords(records);
         toast.success(
           t
             ? t("attendance.markedSuccess", {
@@ -168,8 +188,6 @@ export const Attendance = () => {
         );
         form.reset();
         navigate("/");
-      } else {
-        toast.error(t("general.unkownError"));
       }
     } catch (error) {
       toast.error(
