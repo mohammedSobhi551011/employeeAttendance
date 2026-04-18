@@ -19,6 +19,7 @@ import { Input } from "../components/ui/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEmployees } from "../contexts/Employees";
 import { motion } from "framer-motion";
+import useZodSchema from "../hooks/useZodSchema";
 
 export const Attendance = () => {
   const now = new Date();
@@ -37,6 +38,8 @@ export const Attendance = () => {
     [employees],
   );
 
+  const schema = useZodSchema(AttendanceFormSchema);
+
   const form = useForm<AttendanceFormData>({
     defaultValues: {
       date: now.toISOString().split("T")[0],
@@ -45,7 +48,7 @@ export const Attendance = () => {
       employeesData: [...defaultEmployeesData],
     },
     mode: "onChange",
-    resolver: zodResolver(AttendanceFormSchema),
+    resolver: zodResolver(schema),
   });
   const navigate = useNavigate();
 
