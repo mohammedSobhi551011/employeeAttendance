@@ -186,20 +186,20 @@ export const Employees = () => {
               ? t("employees.confirmDeleteMessage")
               : "Are you sure you want to delete this employee? This action cannot be undone."}
           </p>
-          <div className="flex items-center gap-2 mt-4">
-            <Button
-              type="submit"
-              variant="danger"
-              onClick={() => handleDelete(deleteConfirmEmployee?.id || "")}
-            >
-              {t("employees.delete")}
-            </Button>
+          <div className="flex items-center justify-end gap-2 mt-4">
             <Button
               type="button"
               variant="success"
               onClick={() => setDeleteConfirmEmployee(null)}
             >
               {t ? t("employees.cancel") : "Cancel"}
+            </Button>
+            <Button
+              type="submit"
+              variant="danger"
+              onClick={() => handleDelete(deleteConfirmEmployee?.id || "")}
+            >
+              {t("employees.delete")}
             </Button>
           </div>
         </Modal>
