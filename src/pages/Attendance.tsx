@@ -198,179 +198,184 @@ export const Attendance = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-            {t ? t("attendance.title") : "Mark Attendance"}
-          </h1>
-          <p className="text-sm md:text-base text-gray-600">
-            {t
-              ? t("attendance.description")
-              : "Select employees and mark their attendance status"}
-          </p>
-        </div>
-
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
-            {/* Form Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t ? t("attendance.date") : "Date"} *
-                </label>
-                <Controller
-                  name="date"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Input
-                      type="date"
-                      {...field}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    />
-                  )}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {t ? t("attendance.status") : "Status (Set All)"} *
-                </label>
-                <Controller
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <select
-                      value={field.value}
-                      onChange={(e) => {
-                        const value = e.target.value as TAttendanceStatus;
-                        field.onChange(value);
-                      }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
-                    >
-                      {AttendanceStatuses.map((status) => (
-                        <option key={status} value={status}>
-                          {t ? t(`statuses.${status}`) : status}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                />
-              </div>
-              {watchedStatus !== "Absent" &&
-                watchedStatus !== "Leave" &&
-                watchedEmployeesData.length > 0 && (
-                  <div>
-                    <Controller
-                      control={form.control}
-                      name="overtimeHours"
-                      render={({ field, fieldState }) => (
-                        <Input
-                          {...field}
-                          type="number"
-                          min="0"
-                          step="0.5"
-                          {...field}
-                          placeholder={
-                            t
-                              ? t("attendance.enterOvertimeHours")
-                              : "Overtime hours"
-                          }
-                          label={t("attendance.overtimeHours")}
-                          error={fieldState.error?.message}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-            </div>
-
-            {/* Employee Selection */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <label className="block text-sm font-medium text-gray-700">
-                  {t
-                    ? t("attendance.selectEmployeesLabel", {
-                        count: watchedEmployeesData.filter(
-                          (data) => data.selected,
-                        ).length,
-                      })
-                    : `Select Employees * (${watchedEmployeesData.filter((data) => data.selected).length} selected)`}
-                </label>
-              </div>
-              {/* Select All Checkbox  */}
-              <div className="mb-4 flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 justify-start">
-                <Input
-                  type="checkbox"
-                  label={t ? t("attendance.selectAll") : "Select All"}
-                  checked={
-                    eligibleEmployees.length ===
-                    watchedEmployeesData.filter((data) => data.selected).length
-                  }
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      form.setValue(
-                        "employeesData",
-                        watchedEmployeesData.map((data) => {
-                          if (
-                            eligibleEmployees.some((emp) => emp.id === data.id)
-                          ) {
-                            return { ...data, selected: true };
-                          }
-                          return { ...data, selected: false };
-                        }),
-                      );
-                    } else {
-                      form.setValue(
-                        "employeesData",
-                        watchedEmployeesData.map((data) => ({
-                          ...data,
-                          selected: false,
-                        })),
-                      );
-                    }
-                  }}
-                  id="select-all-employees"
-                />
-              </div>
-
-              {/* Employee List */}
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {watchedEmployeesData.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">
-                    {t
-                      ? t("home.noEmployees")
-                      : "No employees found. Please add employees first."}
-                  </p>
-                ) : (
-                  watchedEmployeesData.map((data, index) => {
-                    const hasAttendanceToday =
-                      todayAttendanceEmployees.includes(data.id.toString());
-                    return (
-                      <EmployeesSelectionItem
-                        key={index + "-employee-selection"}
-                        form={form}
-                        hasAttendanceToday={hasAttendanceToday}
-                        index={index}
-                      />
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full text-base py-3 md:py-2"
-            >
-              {t ? t("attendance.submit") : "Mark Attendance"}
-            </Button>
+    <>
+      <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-6 md:mb-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              {t ? t("attendance.title") : "Mark Attendance"}
+            </h1>
+            <p className="text-sm md:text-base text-gray-600">
+              {t
+                ? t("attendance.description")
+                : "Select employees and mark their attendance status"}
+            </p>
           </div>
-        </form>
+
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
+              {/* Form Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t ? t("attendance.date") : "Date"} *
+                  </label>
+                  <Controller
+                    name="date"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Input
+                        type="date"
+                        {...field}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+                      />
+                    )}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {t ? t("attendance.status") : "Status (Set All)"} *
+                  </label>
+                  <Controller
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <select
+                        value={field.value}
+                        onChange={(e) => {
+                          const value = e.target.value as TAttendanceStatus;
+                          field.onChange(value);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
+                      >
+                        {AttendanceStatuses.map((status) => (
+                          <option key={status} value={status}>
+                            {t ? t(`statuses.${status}`) : status}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  />
+                </div>
+                {watchedStatus !== "Absent" &&
+                  watchedStatus !== "Leave" &&
+                  watchedEmployeesData.length > 0 && (
+                    <div>
+                      <Controller
+                        control={form.control}
+                        name="overtimeHours"
+                        render={({ field, fieldState }) => (
+                          <Input
+                            {...field}
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            {...field}
+                            placeholder={
+                              t
+                                ? t("attendance.enterOvertimeHours")
+                                : "Overtime hours"
+                            }
+                            label={t("attendance.overtimeHours")}
+                            error={fieldState.error?.message}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                      />
+                    </div>
+                  )}
+              </div>
+
+              {/* Employee Selection */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="block text-sm font-medium text-gray-700">
+                    {t
+                      ? t("attendance.selectEmployeesLabel", {
+                          count: watchedEmployeesData.filter(
+                            (data) => data.selected,
+                          ).length,
+                        })
+                      : `Select Employees * (${watchedEmployeesData.filter((data) => data.selected).length} selected)`}
+                  </label>
+                </div>
+                {/* Select All Checkbox  */}
+                <div className="mb-4 flex items-center gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 justify-start">
+                  <Input
+                    type="checkbox"
+                    label={t ? t("attendance.selectAll") : "Select All"}
+                    checked={
+                      eligibleEmployees.length ===
+                      watchedEmployeesData.filter((data) => data.selected)
+                        .length
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        form.setValue(
+                          "employeesData",
+                          watchedEmployeesData.map((data) => {
+                            if (
+                              eligibleEmployees.some(
+                                (emp) => emp.id === data.id,
+                              )
+                            ) {
+                              return { ...data, selected: true };
+                            }
+                            return { ...data, selected: false };
+                          }),
+                        );
+                      } else {
+                        form.setValue(
+                          "employeesData",
+                          watchedEmployeesData.map((data) => ({
+                            ...data,
+                            selected: false,
+                          })),
+                        );
+                      }
+                    }}
+                    id="select-all-employees"
+                  />
+                </div>
+
+                {/* Employee List */}
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {watchedEmployeesData.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">
+                      {t
+                        ? t("home.noEmployees")
+                        : "No employees found. Please add employees first."}
+                    </p>
+                  ) : (
+                    watchedEmployeesData.map((data, index) => {
+                      const hasAttendanceToday =
+                        todayAttendanceEmployees.includes(data.id.toString());
+                      return (
+                        <EmployeesSelectionItem
+                          key={index + "-employee-selection"}
+                          form={form}
+                          hasAttendanceToday={hasAttendanceToday}
+                          index={index}
+                        />
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-full text-base py-3 md:py-2"
+              >
+                {t ? t("attendance.submit") : "Mark Attendance"}
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

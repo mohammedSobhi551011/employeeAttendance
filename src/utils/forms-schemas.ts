@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AttendanceStatuses, InferSchema } from "../types";
+import { AttendanceStatuses, ComparisonCondition, InferSchema } from "../types";
 import { TFunction } from "i18next";
 
 export const AttendanceFormSchema = (t: TFunction) =>
@@ -132,6 +132,14 @@ export const OvertimeReportFilterFormSchema = () =>
   z.object({
     fromDate: z.string(),
     toDate: z.string(),
+    overtimeHours: z.object({
+      number: z.string(),
+      condition: z.enum(ComparisonCondition),
+    }),
+    overtimeDays: z.object({
+      number: z.string(),
+      condition: z.enum(ComparisonCondition),
+    }),
   });
 export type OvertimeReportFilterData = InferSchema<
   typeof OvertimeReportFilterFormSchema

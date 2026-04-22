@@ -19,6 +19,9 @@ import { OvertimeRequest } from "./pages/OvertimeRequest";
 import OvertimeProvider from "./contexts/Overtime";
 import Meals from "./pages/Meals";
 import { Navbar } from "./components/Navbar";
+import LoadingBackground, {
+  LoadingBackgroundProvider,
+} from "./components/ui/LoadingBackground";
 
 interface RequireAuthProps {
   children: ReactNode;
@@ -42,44 +45,47 @@ function App() {
           path="/*"
           element={
             <RequireAuth>
-              <>
-                <Navbar />
-                <div className="md:pb-0 pb-20">
-                  <EmployeesProvider>
-                    <Routes>
-                      <Route
-                        path="/"
-                        element={
-                          <AttendanceFilterProvider>
-                            <Home />
-                          </AttendanceFilterProvider>
-                        }
-                      />
-                      <Route path="/attendance" element={<Attendance />} />
-                      <Route path="/employees" element={<Employees />} />
-                      <Route
-                        path="/overtime/*"
-                        element={
-                          <OvertimeProvider>
-                            <Routes>
-                              <Route
-                                path="/report"
-                                element={<OvertimeReport />}
-                              />
-                              <Route
-                                path="/request"
-                                element={<OvertimeRequest />}
-                              />
-                            </Routes>
-                          </OvertimeProvider>
-                        }
-                      />
-                      <Route path="/meals" element={<Meals />} />
-                    </Routes>
-                  </EmployeesProvider>
-                </div>
-                <Toaster position="bottom-left" />
-              </>
+              <LoadingBackgroundProvider>
+                <>
+                  <Navbar />
+                  <div className="md:pb-0 pb-20">
+                    <EmployeesProvider>
+                      <Routes>
+                        <Route
+                          path="/"
+                          element={
+                            <AttendanceFilterProvider>
+                              <Home />
+                            </AttendanceFilterProvider>
+                          }
+                        />
+                        <Route path="/attendance" element={<Attendance />} />
+                        <Route path="/employees" element={<Employees />} />
+                        <Route
+                          path="/overtime/*"
+                          element={
+                            <OvertimeProvider>
+                              <Routes>
+                                <Route
+                                  path="/report"
+                                  element={<OvertimeReport />}
+                                />
+                                <Route
+                                  path="/request"
+                                  element={<OvertimeRequest />}
+                                />
+                              </Routes>
+                            </OvertimeProvider>
+                          }
+                        />
+                        <Route path="/meals" element={<Meals />} />
+                      </Routes>
+                    </EmployeesProvider>
+                  </div>
+                  <Toaster position="bottom-left" />
+                  <LoadingBackground />
+                </>
+              </LoadingBackgroundProvider>
             </RequireAuth>
           }
         />

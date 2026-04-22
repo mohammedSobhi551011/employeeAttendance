@@ -39,6 +39,14 @@ export default function OvertimeProvider({
     defaultValues: {
       fromDate: getTodayDate(),
       toDate: getTodayDate(),
+      overtimeDays: {
+        condition: "Equal",
+        number: "",
+      },
+      overtimeHours: {
+        condition: "Equal",
+        number: "",
+      },
     },
   });
 

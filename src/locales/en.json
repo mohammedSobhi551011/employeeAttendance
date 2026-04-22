@@ -134,7 +134,10 @@
       "noData": "No overtime records found",
       "selectBothDates": "Please select both dates",
       "fromDateAfterTo": "From date must be before To date",
-      "loadError": "Error loading overtime data"
+      "loadError": "Error loading overtime data",
+      "totalDays": "Total Overtime Days",
+      "overtimeHours": "Overtime Hours",
+      "overtimeDays": "Overtime Days"
     },
     "request": {
       "title": "Overtime Request",
@@ -166,5 +169,19 @@
     "unknownError": "Unkown error",
     "table-empty-data": "No data available",
     "print-hint": "You can press Ctrl+P to print"
+  },
+  "import": {
+    "success": "Import successful",
+    "error": "Import failed",
+    "dataLabel": "Imported Data"
+  },
+  "export": {
+    "success": "Export successful",
+    "error": "Export failed"
+  },
+  "conditions": {
+    "Equal": "Equal",
+    "Greater": "Greater",
+    "Less": "Less"
   }
 }

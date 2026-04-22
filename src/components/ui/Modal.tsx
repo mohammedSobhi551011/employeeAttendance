@@ -37,7 +37,7 @@ export const Modal = ({ isOpen, title, children, onClose }: IModalProps) => {
             initial={{ y: "100vh" }}
             animate={{ y: 0 }}
             exit={{ y: "100vh" }}
-            className="bg-white rounded-t-lg md:rounded-lg shadow-xl max-w-md w-full max-h-[90vh] md:max-h-96 overflow-y-auto md:mx-4 z-50"
+            className="bg-white rounded-t-lg md:rounded-lg shadow-xl max-w-full w-full max-h-[90vh]  overflow-y-auto md:mx-4 z-50"
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-4 md:px-6 py-4 flex justify-between items-center rounded-t-lg md:rounded-t-none">
               <h2 className="text-lg md:text-xl font-semibold text-gray-900">

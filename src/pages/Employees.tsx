@@ -5,13 +5,15 @@ import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 import toast from "react-hot-toast";
 import { useAttendance } from "../hooks/useAttendance";
-import { Edit, Plus, Trash } from "lucide-react";
+import { ArrowDown, ArrowUp, Edit, Plus, Trash } from "lucide-react";
 import { Employee, ITableColumn } from "../types";
 import CreateUpdateEmployeeForm from "../components/forms/CreateUpdateEmployeeForm";
 import { useEmployees } from "../contexts/Employees";
+import { useImportExport } from "../hooks/useImportExport";
+import { exportEmployees, importEmployees } from "../utils/storage";
 
 export const Employees = () => {
-  const { employees, deleteEmployee } = useEmployees();
+  const { employees, deleteEmployee, loadEmployees } = useEmployees();
 
   const { deleteAttendanceRecordsByEmployeeId } = useAttendance();
   const { t, i18n } = useTranslation();
@@ -72,6 +74,20 @@ export const Employees = () => {
     },
   ];
 
+  const { exportData, importData } = useImportExport<{ employees: Employee[] }>(
+    {
+      keys: ["employees"],
+      onDataImported: async (data) => {
+        await importEmployees(data);
+        await loadEmployees();
+        toast.success(t("import.success"));
+      },
+      onDataExported: async () => {
+        toast.success(t("export.success"));
+      },
+    },
+  );
+
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -84,14 +100,31 @@ export const Employees = () => {
               {t ? t("employees.subtitle") : "Manage employees in your system"}
             </p>
           </div>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            size="sm"
-            variant="primary"
-            className="w-full md:w-auto flex items-center justify-center gap-2"
-          >
-            <Plus size={20} />
-          </Button>
+          <div className="flex gap-4 items-center">
+            <div className="flex gap-2 items-center">
+              <Button
+                onClick={async () => {
+                  const data = await exportEmployees();
+                  await exportData({ employees: data });
+                }}
+                size="sm"
+                variant="ghost"
+              >
+                <ArrowUp size={20} />
+              </Button>
+              <Button onClick={importData} size="sm" variant="ghost">
+                <ArrowDown size={20} />
+              </Button>
+            </div>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              size="sm"
+              variant="primary"
+              className="w-full md:w-auto flex items-center justify-center gap-2"
+            >
+              <Plus size={20} />
+            </Button>
+          </div>
         </div>
 
         {/* Desktop Table View */}
@@ -153,20 +186,20 @@ export const Employees = () => {
               ? t("employees.confirmDeleteMessage")
               : "Are you sure you want to delete this employee? This action cannot be undone."}
           </p>
-          <div className="flex items-center gap-2 mt-4">
-            <Button
-              type="submit"
-              variant="danger"
-              onClick={() => handleDelete(deleteConfirmEmployee?.id || "")}
-            >
-              {t("employees.delete")}
-            </Button>
+          <div className="flex items-center justify-end gap-2 mt-4">
             <Button
               type="button"
               variant="success"
               onClick={() => setDeleteConfirmEmployee(null)}
             >
               {t ? t("employees.cancel") : "Cancel"}
+            </Button>
+            <Button
+              type="submit"
+              variant="danger"
+              onClick={() => handleDelete(deleteConfirmEmployee?.id || "")}
+            >
+              {t("employees.delete")}
             </Button>
           </div>
         </Modal>

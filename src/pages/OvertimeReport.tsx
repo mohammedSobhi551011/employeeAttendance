@@ -2,12 +2,13 @@ import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { getOvertimeByDateRange } from "../utils/storage";
 import toast from "react-hot-toast";
-import { ITableColumn, OvertimeRecord } from "../types";
+import { ComparisonCondition, ITableColumn, OvertimeRecord } from "../types";
 import { Table } from "../components/ui/Table";
 import { useOvertime } from "../contexts/Overtime";
 import { Controller } from "react-hook-form";
 import { Input } from "../components/ui/Input";
 import { OvertimeReportFilterData } from "../utils/forms-schemas";
+import { applyOvertimeFilters } from "../utils/helpers";
 
 export const OvertimeReport = () => {
   const { t, i18n } = useTranslation();
@@ -17,8 +18,12 @@ export const OvertimeReport = () => {
 
   const fromDate = form.watch("fromDate");
   const toDate = form.watch("toDate");
+  const watchedOvertimeHours = form.watch("overtimeHours");
+  const watchedOvertimeDays = form.watch("overtimeDays");
 
-  const handleSearch = async (data: OvertimeReportFilterData) => {
+  const handleSearch = async (
+    data: Pick<OvertimeReportFilterData, "fromDate" | "toDate">,
+  ) => {
     const { fromDate, toDate } = data;
     if (!fromDate || !toDate) {
       toast.error(
@@ -67,6 +72,7 @@ export const OvertimeReport = () => {
     _rowNumber: number;
     employeeName: string;
     totalHours: number;
+    totalOvertimeDays: number;
   }>[] = [
     {
       key: "_rowNumber",
@@ -80,20 +86,43 @@ export const OvertimeReport = () => {
       key: "totalHours",
       label: t ? t("overtime.report.totalHours") : "Total Overtime Hours",
     },
+    {
+      key: "totalOvertimeDays",
+      label: t ? t("overtime.report.totalDays") : "Total Days",
+    },
   ];
 
   const formattedOvertimeData = useMemo(
     () =>
-      overtimeData
-        .filter((record) => record[2] > 0)
-        .map((record, idx) => ({
-          ...record,
-          id: idx + "-overtime", // Add an id for React key
-          _rowNumber: idx + 1,
-          employeeName: record[1],
-          totalHours: record[2],
-        })),
-    [overtimeData],
+      applyOvertimeFilters(
+        overtimeData
+          .filter((record) => record[2] > 0)
+          .map((record, idx) => ({
+            ...record,
+            id: idx + "-overtime", // Add an id for React key
+            _rowNumber: idx + 1,
+            employeeName: record[1],
+            totalHours: record[2],
+            totalOvertimeDays: record[3],
+          })),
+        {
+          days: {
+            value: watchedOvertimeDays.number,
+            condition: watchedOvertimeDays.condition,
+          },
+          hours: {
+            value: watchedOvertimeHours.number,
+            condition: watchedOvertimeHours.condition,
+          },
+        },
+      ),
+    [
+      overtimeData,
+      watchedOvertimeDays.number,
+      watchedOvertimeHours.number,
+      watchedOvertimeDays.condition,
+      watchedOvertimeHours.condition,
+    ],
   );
 
   return (
@@ -112,7 +141,7 @@ export const OvertimeReport = () => {
 
         {/* Filter Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
               <Controller
                 control={form.control}
@@ -138,6 +167,70 @@ export const OvertimeReport = () => {
                     label={t("overtime.report.toDate")}
                     id="to-date"
                   />
+                )}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Controller
+                control={form.control}
+                name="overtimeHours.number"
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    value={field.value?.toString() || ""}
+                    onChange={field.onChange}
+                    label={t("overtime.report.overtimeHours")}
+                    id="to-date"
+                  />
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="overtimeHours.condition"
+                render={({ field }) => (
+                  <select
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {ComparisonCondition.map((condition) => (
+                      <option key={condition} value={condition}>
+                        {t ? t(`conditions.${condition}`) : condition}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Controller
+                control={form.control}
+                name="overtimeDays.number"
+                render={({ field }) => (
+                  <Input
+                    type="number"
+                    value={field.value?.toString() || ""}
+                    onChange={field.onChange}
+                    label={t("overtime.report.overtimeDays")}
+                    id="to-date"
+                  />
+                )}
+              />
+              <Controller
+                control={form.control}
+                name="overtimeDays.condition"
+                render={({ field }) => (
+                  <select
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {ComparisonCondition.map((condition) => (
+                      <option key={condition} value={condition}>
+                        {t ? t(`conditions.${condition}`) : condition}
+                      </option>
+                    ))}
+                  </select>
                 )}
               />
             </div>
