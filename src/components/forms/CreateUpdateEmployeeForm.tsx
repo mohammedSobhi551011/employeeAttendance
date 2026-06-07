@@ -50,27 +50,18 @@ function CreateUpdateEmployeeForm({
 
   const onSubmit = async (data: EmployeeFormData) => {
     try {
+      const payload = {
+        ...data,
+        stamp: data.stamp || null,
+      };
+
       if (action.type === "create") {
-        await addEmployee({
-          name: data.name,
-          jobNumber: data.jobNumber,
-          transportation: data.transportation,
-          position: data.position,
-          phone: data.phone,
-          stamp: data.stamp,
-        });
+        await addEmployee(payload);
         toast.success(t ? t("employees.added") : "Employee added successfully");
         onSuccess();
       } else {
         const { employee } = action;
-        await updateEmployee(employee.id, {
-          name: data.name,
-          jobNumber: data.jobNumber,
-          transportation: data.transportation,
-          position: data.position,
-          phone: data.phone,
-          stamp: data.stamp,
-        });
+        await updateEmployee(employee.id, payload);
         toast.success(
           t ? t("employees.updated") : "Employee updated successfully",
         );
@@ -158,7 +149,7 @@ function CreateUpdateEmployeeForm({
         name="stamp"
         render={({ field, fieldState }) => (
           <Input
-            label={t ? t("employees.stampLabel") : "Stamp *"}
+            label={t ? t("employees.stampLabel") : "Stamp"}
             placeholder={
               t ? t("employees.stampPlaceholder") : "e.g., STAMP-001"
             }

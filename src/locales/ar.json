@@ -114,8 +114,8 @@
     "positionPlaceholder": "الوظيفة",
     "phoneLabel": "رقم الهاتف *",
     "phonePlaceholder": "رقم الهاتف",
-    "stampLabel": "الختم *",
-    "stampPlaceholder": "الختم",
+    "stampLabel": "الختم",
+    "stampPlaceholder": "الختم (اختياري)",
     "searchPlaceholder": "بحث بالاسم، رقم الوظيفة، الدورة، الوظيفة، الهاتف أو الختم...",
     "create-form": {
       "name-min-error": "الاسم مطلوب و يجب أن يكون على الأقل 3 أحرف",
@@ -128,7 +128,7 @@
       "position-max-error": "الوظيفة يجب الا تتخطى 20 حرفاً",
       "phone-min-error": "رقم الهاتف مطلوب و يجب أن يكون على الأقل 11 رقمًا",
       "phone-max-error": "رقم الهاتف يجب الا يتخطى 15 رقمًا",
-      "stamp-min-error": "الختم مطلوب و يجب أن يكون على الأقل 3 أحرف",
+      "stamp-min-error": "يجب أن يكون الختم على الأقل حرف واحد",
       "stamp-max-error": "الختم يجب الا يتخطى 20 حرفاً"
     }
   },

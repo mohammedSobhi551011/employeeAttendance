@@ -76,7 +76,7 @@ export const Employees = () => {
     },
     {
       key: "stamp",
-      label: t ? t("employees.stampLabel") : "Stamp *",
+      label: t ? t("employees.stampLabel") : "Stamp",
     },
     {
       key: "actions",

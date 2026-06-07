@@ -51,8 +51,9 @@ export const EmployeeFormSchema = (t: TFunction) =>
       .max(15, t("employees.create-form.phone-max-error")),
     stamp: z
       .string()
-      .min(3, t("employees.create-form.stamp-min-error"))
-      .max(20, t("employees.create-form.stamp-max-error")),
+      .max(20, t("employees.create-form.stamp-max-error"))
+      .optional()
+      .or(z.literal("")),
   });
 
 export type EmployeeFormData = InferSchema<typeof EmployeeFormSchema>;

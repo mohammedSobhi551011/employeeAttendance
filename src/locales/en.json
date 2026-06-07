@@ -114,8 +114,8 @@
     "positionPlaceholder": "Position",
     "phoneLabel": "Phone Number *",
     "phonePlaceholder": "Phone Number",
-    "stampLabel": "Stamp *",
-    "stampPlaceholder": "Stamp",
+    "stampLabel": "Stamp",
+    "stampPlaceholder": "Stamp (optional)",
     "searchPlaceholder": "Search by name, job number, transportation, position, phone or stamp...",
     "create-form": {
       "name-min-error": "Name is required and must be at least 3 characters",
@@ -128,7 +128,7 @@
       "position-max-error": "Position should not exceed 20 characters",
       "phone-min-error": "Phone number is required and must be at least 11 digits",
       "phone-max-error": "Phone number should not exceed 15 digits",
-      "stamp-min-error": "Stamp is required and must be at least 3 characters",
+      "stamp-min-error": "Stamp should be at least 1 character",
       "stamp-max-error": "Stamp should not exceed 20 characters"
     }
   },
