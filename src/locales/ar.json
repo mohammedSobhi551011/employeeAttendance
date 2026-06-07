@@ -110,6 +110,7 @@
     "added": "تم إضافة الموظف بنجاح",
     "transportationLabel": "الدورة",
     "transportationPlaceholder": "الدورة",
+    "searchPlaceholder": "بحث بالاسم، رقم الوظيفة أو الدورة...",
     "create-form": {
       "name-min-error": "الاسم مطلوب و يجب أن يكون على الأقل 3 أحرف",
       "name-max-error": "يجب الا يتخطى الاسم 25 حرفاً",
@@ -168,7 +169,8 @@
   "general": {
     "unknownError": "حدث خطأ غير معروف",
     "table-empty-data": "لا يوجد بيانات",
-    "print-hint": "يمكنك الضغط على Ctrl+P للطباعة"
+    "print-hint": "يمكنك الضغط على Ctrl+P للطباعة",
+    "search-placeholder": "ابحث عن الموظفين بالاسم أو رقم الوظيفة"
   },
   "import": {
     "success": "تم الإستيراد بنجاح",

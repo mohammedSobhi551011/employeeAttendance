@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import type { Plugin } from "vite";
+import path from "path";
 
 // Custom plugin to handle Tauri API resolution
 const tauriPlugin: Plugin = {
@@ -33,6 +34,11 @@ export default defineConfig({
   plugins: [react(), tauriPlugin],
   optimizeDeps: {
     exclude: ["@tauri-apps/api", "@tauri-apps/api/tauri"],
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
   },
   build: {
     rollupOptions: {

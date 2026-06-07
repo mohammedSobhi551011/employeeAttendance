@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { AttendanceRecord } from "../../types";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { useAttendance } from "../../hooks/useAttendance";
 import toast from "react-hot-toast";
 
@@ -67,7 +67,7 @@ function DeleteAttendanceRecordForm({
         <Button variant="success" onClick={onCancel}>
           {t ? t("home.cancel") : "Cancel"}
         </Button>
-        <Button variant="danger" onClick={handleDelete}>
+        <Button variant="destructive" onClick={handleDelete}>
           {t ? t("home.delete") : "Delete"}
         </Button>
       </div>

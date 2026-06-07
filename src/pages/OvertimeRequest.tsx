@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import OvertimeRequestForm from "../components/forms/OvertimeRequestForm";
-import { Button } from "../components/ui/Button";
+import { Button } from "../components/ui/button";
 import { Printer } from "lucide-react";
 import OvertimeRequestPreview from "../components/OvertimeRequestPerview";
 import { usePrintShortcut } from "../hooks/usePrintShortcut";

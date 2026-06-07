@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { LogOut } from "lucide-react";
-import { Button } from "./ui/Button";
+import { Button } from "./ui/button";
 import { NavbarDropdown } from "./NavbarDropdown";
 
 export const Navbar = () => {
@@ -118,7 +118,7 @@ export const Navbar = () => {
                   العربية
                 </button>
               </div>
-              <Button variant="danger" size="sm" onClick={logout}>
+              <Button variant="destructive" size="sm" onClick={logout}>
                 <LogOut
                   size={16}
                   className={i18n.language === "ar" ? "rotate-180" : ""}

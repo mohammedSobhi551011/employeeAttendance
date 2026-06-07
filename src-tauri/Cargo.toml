@@ -1,7 +1,7 @@
 [package]
 name = "app"
-version = "0.1.0"
-description = "Employees Attendence"
+version = "1.4.0"
+description = "Employees Attendance Management System"
 authors = ["you"]
 license = ""
 repository = ""

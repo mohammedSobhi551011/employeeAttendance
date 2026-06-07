@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Controller, useForm, UseFormReturn } from "react-hook-form";
 import { useAttendance } from "../hooks/useAttendance";
-import { Button } from "../components/ui/Button";
+import { Button } from "../components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -46,6 +46,7 @@ export const Attendance = () => {
       status: "Present",
       overtimeHours: "",
       employeesData: [...defaultEmployeesData],
+      employeesSearchTerm: "",
     },
     mode: "onChange",
     resolver: zodResolver(schema),
@@ -63,13 +64,20 @@ export const Attendance = () => {
   const watchedEmployeesData = form.watch("employeesData");
   const watchedDate = form.watch("date");
   const watchedOvertimeHours = form.watch("overtimeHours");
-
-  const eligibleEmployees = employees.filter(
-    (emp) => !todayAttendanceEmployees.includes(emp.id.toString()),
-  );
+  const watchedEmployeesSearchTerm = form.watch("employeesSearchTerm");
 
   useEffect(() => {
-    form.setValue("employeesData", defaultEmployeesData);
+    const currentData = form.getValues("employeesData");
+    if (currentData.length === 0) {
+      form.setValue("employeesData", defaultEmployeesData);
+    } else {
+      // Merge: add new employees, remove deleted ones, keep existing selection/status
+      const newData = defaultEmployeesData.map((defEmp) => {
+        const existing = currentData.find((curr) => curr.id === defEmp.id);
+        return existing ? { ...defEmp, ...existing } : defEmp;
+      });
+      form.setValue("employeesData", newData);
+    }
   }, [defaultEmployeesData]);
 
   // Set all selected employees' status
@@ -197,6 +205,21 @@ export const Attendance = () => {
     }
   };
 
+  const filteredEmployeesData = useMemo(() => {
+    if (watchedEmployeesSearchTerm.trim().length === 0) {
+      return watchedEmployeesData;
+    }
+    return watchedEmployeesData.filter(
+      (data) =>
+        data.name
+          ?.toLowerCase()
+          .includes(watchedEmployeesSearchTerm.toLowerCase()) ||
+        data.jobNumber
+          ?.toLowerCase()
+          .includes(watchedEmployeesSearchTerm.toLowerCase()),
+    );
+  }, [watchedEmployeesData, watchedEmployeesSearchTerm]);
+
   return (
     <>
       <div className="min-h-screen bg-gray-50 py-6 px-4 md:py-8 md:px-6 lg:px-8">
@@ -270,7 +293,6 @@ export const Attendance = () => {
                             type="number"
                             min="0"
                             step="0.5"
-                            {...field}
                             placeholder={
                               t
                                 ? t("attendance.enterOvertimeHours")
@@ -305,57 +327,74 @@ export const Attendance = () => {
                     type="checkbox"
                     label={t ? t("attendance.selectAll") : "Select All"}
                     checked={
-                      eligibleEmployees.length ===
-                      watchedEmployeesData.filter((data) => data.selected)
-                        .length
+                      filteredEmployeesData.length > 0 &&
+                      filteredEmployeesData
+                        .filter(
+                          (d) =>
+                            !todayAttendanceEmployees.includes(d.id.toString()),
+                        )
+                        .every((data) => data.selected)
                     }
                     onChange={(e) => {
-                      if (e.target.checked) {
-                        form.setValue(
-                          "employeesData",
-                          watchedEmployeesData.map((data) => {
-                            if (
-                              eligibleEmployees.some(
-                                (emp) => emp.id === data.id,
-                              )
-                            ) {
-                              return { ...data, selected: true };
-                            }
-                            return { ...data, selected: false };
-                          }),
-                        );
-                      } else {
-                        form.setValue(
-                          "employeesData",
-                          watchedEmployeesData.map((data) => ({
-                            ...data,
-                            selected: false,
-                          })),
-                        );
-                      }
+                      const isChecked = e.target.checked;
+                      const filteredIds = new Set(
+                        filteredEmployeesData.map((d) => d.id),
+                      );
+                      form.setValue(
+                        "employeesData",
+                        watchedEmployeesData.map((data) => {
+                          if (
+                            filteredIds.has(data.id) &&
+                            !todayAttendanceEmployees.includes(
+                              data.id.toString(),
+                            )
+                          ) {
+                            return { ...data, selected: isChecked };
+                          }
+                          return data;
+                        }),
+                      );
                     }}
                     id="select-all-employees"
                   />
                 </div>
 
+                {/* Search Input */}
+                <div className="mb-4">
+                  <Controller
+                    control={form.control}
+                    name="employeesSearchTerm"
+                    render={({ field }) => (
+                      <Input
+                        type="text"
+                        placeholder={t("general.search-placeholder")}
+                        {...field}
+                      />
+                    )}
+                  />
+                </div>
+
                 {/* Employee List */}
                 <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {watchedEmployeesData.length === 0 ? (
+                  {filteredEmployeesData.length === 0 ? (
                     <p className="text-gray-500 text-center py-4">
                       {t
                         ? t("home.noEmployees")
                         : "No employees found. Please add employees first."}
                     </p>
                   ) : (
-                    watchedEmployeesData.map((data, index) => {
+                    filteredEmployeesData.map((data) => {
                       const hasAttendanceToday =
                         todayAttendanceEmployees.includes(data.id.toString());
+                      const fullIndex = watchedEmployeesData.findIndex(
+                        (d) => d.id === data.id,
+                      );
                       return (
                         <EmployeesSelectionItem
-                          key={index + "-employee-selection"}
+                          key={data.id + "-employee-selection"}
                           form={form}
                           hasAttendanceToday={hasAttendanceToday}
-                          index={index}
+                          index={fullIndex}
                         />
                       );
                     })
@@ -366,7 +405,7 @@ export const Attendance = () => {
               {/* Submit Button */}
               <Button
                 type="submit"
-                variant="primary"
+                variant="default"
                 className="w-full text-base py-3 md:py-2"
               >
                 {t ? t("attendance.submit") : "Mark Attendance"}
@@ -391,7 +430,7 @@ const EmployeesSelectionItem = ({
   index,
 }: IEmployeesSelectionItemProps) => {
   const { t } = useTranslation();
-  const employeeData = form.watch(`employeesData.${index}`);
+  const employeeData = form.watch(`employeesData.${index}`)!;
   return (
     <Controller
       control={form.control}
@@ -415,7 +454,12 @@ const EmployeesSelectionItem = ({
             <Input
               type="checkbox"
               checked={selectedField.value || hasAttendanceToday}
-              onChange={(e) => selectedField.onChange(!e.currentTarget.checked)}
+              onChange={(e) => {
+                e.stopPropagation();
+                if (!hasAttendanceToday) {
+                  selectedField.onChange(e.target.checked);
+                }
+              }}
               disabled={hasAttendanceToday}
               className="border-4 border-black"
               id={employeeData.id}

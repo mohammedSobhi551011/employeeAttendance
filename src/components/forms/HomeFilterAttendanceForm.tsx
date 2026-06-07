@@ -2,9 +2,9 @@ import { useTranslation } from "react-i18next";
 import { Controller } from "react-hook-form";
 import { Input } from "../ui/Input";
 import { AttendanceStatuses } from "../../types";
-import { Button } from "../ui/Button";
 import { useAttendanceFilter } from "../../contexts/AttendanceFilter";
 import { useEmployees } from "../../contexts/Employees";
+import { Button } from "../ui/button";
 
 interface IHomeFilterAttendanceFormProps {
   handleClearFilters: () => void;

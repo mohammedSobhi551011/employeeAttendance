@@ -13,7 +13,7 @@ import {
 } from "../../types";
 import toast from "react-hot-toast";
 import { useAttendance } from "../../hooks/useAttendance";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import useZodSchema from "../../hooks/useZodSchema";
 
 interface IUpdateAttendanceRecordProps {
@@ -171,7 +171,7 @@ function UpdateAttendanceRecordForm({
         <Button variant="secondary" onClick={onCancel} type="button">
           {t ? t("home.cancel") : "Cancel"}
         </Button>
-        <Button type="submit" variant="primary">
+        <Button type="submit" variant="default">
           {t ? t("home.update") : "Update"}
         </Button>
       </div>

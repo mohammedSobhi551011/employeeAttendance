@@ -6,11 +6,11 @@ import { useEmployees } from "../contexts/Employees";
 import { Employee } from "../types";
 import { motion } from "framer-motion";
 import MealsPreview from "../components/MealsPreview";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import { useReactToPrint } from "react-to-print";
 import { usePrintShortcut } from "../hooks/usePrintShortcut";
 import { Printer } from "lucide-react";
-import { Button } from "../components/ui/Button";
+import { Button } from "../components/ui/button";
 import toast from "react-hot-toast";
 
 function Meals() {
@@ -21,11 +21,25 @@ function Meals() {
   const form = useForm<MealsFormData>({
     defaultValues: {
       date: getTodayDate(),
+      employeesSearchTerm: "",
       employees: [],
     },
   });
   const watchedEmployees = form.watch("employees");
   const watchedDate = form.watch("date");
+  const watchedEmployeesSearchTerm = form.watch("employeesSearchTerm");
+
+  const filteredEmployees = useMemo(() => {
+    if (watchedEmployeesSearchTerm.trim().length === 0) {
+      return employees;
+    }
+    const term = watchedEmployeesSearchTerm.toLowerCase();
+    return employees.filter(
+      (emp) =>
+        emp.name?.toLowerCase().includes(term) ||
+        emp.jobNumber?.toLowerCase().includes(term),
+    );
+  }, [employees, watchedEmployeesSearchTerm]);
 
   const previewRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
@@ -101,41 +115,68 @@ function Meals() {
           <Input
             type="checkbox"
             label={t ? t("attendance.selectAll") : "Select All"}
-            checked={watchedEmployees.length === employees.length}
+            checked={
+              filteredEmployees.length > 0 &&
+              filteredEmployees.every((fe) =>
+                watchedEmployees.some((we) => we.id === fe.id),
+              )
+            }
             onChange={(e) => {
               if (e.target.checked) {
+                const newEmployees = [...watchedEmployees];
+                filteredEmployees.forEach((fe) => {
+                  if (!newEmployees.some((we) => we.id === fe.id)) {
+                    newEmployees.push({
+                      id: fe.id,
+                      name: fe.name,
+                      jobNumber: fe.jobNumber,
+                    });
+                  }
+                });
+                form.setValue("employees", newEmployees);
+              } else {
+                const filteredIds = new Set(filteredEmployees.map((fe) => fe.id));
                 form.setValue(
                   "employees",
-                  employees.map((emp) => ({
-                    id: emp.id,
-                    name: emp.name,
-                    jobNumber: emp.jobNumber,
-                  })),
+                  watchedEmployees.filter((we) => !filteredIds.has(we.id)),
                 );
-              } else {
-                form.setValue("employees", []);
               }
             }}
             id="select-all-employees"
           />
         </div>
 
+        {/* Search Input */}
+        <div className="mb-4">
+          <Controller
+            control={form.control}
+            name="employeesSearchTerm"
+            render={({ field }) => (
+              <Input
+                type="text"
+                placeholder={t("general.search-placeholder")}
+                {...field}
+              />
+            )}
+          />
+        </div>
+
         {/* Employee List */}
-        <div className="gap-3 max-h-96 overflow-y-auto grid grid-cols-5 bg-gray-100 p-4 rounded-lg border border-gray-200">
-          {employees.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">
+        <div className="gap-3 max-h-96 overflow-y-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 bg-gray-100 p-4 rounded-lg border border-gray-200">
+          {filteredEmployees.length === 0 ? (
+            <p className="text-gray-500 text-center py-4 col-span-full">
               {t
                 ? t("home.noEmployees")
                 : "No employees found. Please add employees first."}
             </p>
           ) : (
-            employees.map((employee, index) => {
+            filteredEmployees.map((employee) => {
               const selected = watchedEmployees.some(
                 (emp) => emp.id === employee.id,
               );
               return (
                 <EmployeesSelectionItem
-                  key={index + "-employee-selection"}
+                  key={employee.id + "-employee-selection"}
                   employee={employee}
                   handleEmployeeToggle={handleEmployeeToggle}
                   selected={selected}

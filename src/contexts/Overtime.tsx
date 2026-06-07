@@ -24,6 +24,7 @@ export default function OvertimeProvider({
   const requestForm = useForm<OvertimeRequestFormData>({
     defaultValues: {
       date: new Date().toISOString().split("T")[0],
+      employeesSearchTerm: "",
       employees: employees.map((e) => ({
         ...e,
         selected: false,
@@ -39,6 +40,7 @@ export default function OvertimeProvider({
     defaultValues: {
       fromDate: getTodayDate(),
       toDate: getTodayDate(),
+      searchTerm: "",
       overtimeDays: {
         condition: "Equal",
         number: "",

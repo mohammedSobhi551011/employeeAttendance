@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useOvertime } from "../../contexts/Overtime";
 import { Controller } from "react-hook-form";
 import { Input } from "../ui/Input";
@@ -10,12 +10,22 @@ import { motion } from "framer-motion";
 function OvertimeRequestForm() {
   const { t } = useTranslation();
   const { requestForm: form } = useOvertime();
-  const values = form.watch();
   const watchedFromTime = form.watch("fromTime");
   const watchedToTime = form.watch("toTime");
   const watchedEmployees = form.watch("employees");
+  const watchedEmployeesSearchTerm = form.watch("employeesSearchTerm");
 
-  useEffect(() => {}, [values]);
+  const filteredEmployees = useMemo(() => {
+    if (watchedEmployeesSearchTerm.trim().length === 0) {
+      return watchedEmployees;
+    }
+    const term = watchedEmployeesSearchTerm.toLowerCase();
+    return watchedEmployees.filter(
+      (emp) =>
+        emp.name?.toLowerCase().includes(term) ||
+        emp.jobNumber?.toLowerCase().includes(term),
+    );
+  }, [watchedEmployees, watchedEmployeesSearchTerm]);
 
   useEffect(() => {
     form.setValue(
@@ -86,29 +96,59 @@ function OvertimeRequestForm() {
             type="checkbox"
             id="select-all"
             checked={
-              watchedEmployees.length ===
-                watchedEmployees.filter((emp) => emp.selected).length &&
-              watchedEmployees.filter((emp) => emp.selected).length > 0
+              filteredEmployees.length > 0 &&
+              filteredEmployees.every((emp) => emp.selected)
             }
             onChange={(e) => {
+              const isChecked = e.currentTarget.checked;
+              const filteredIds = new Set(filteredEmployees.map((emp) => emp.id));
               form.setValue(
                 "employees",
-                watchedEmployees.map((emp) => ({
-                  ...emp,
-                  selected: e.currentTarget.checked,
-                })),
+                watchedEmployees.map((emp) => {
+                  if (filteredIds.has(emp.id)) {
+                    return { ...emp, selected: isChecked };
+                  }
+                  return emp;
+                }),
               );
             }}
           />
         </div>
+
+        {/* Search Input */}
+        <div className="mb-2">
+          <Controller
+            control={form.control}
+            name="employeesSearchTerm"
+            render={({ field }) => (
+              <Input
+                type="text"
+                placeholder={t("general.search-placeholder")}
+                {...field}
+              />
+            )}
+          />
+        </div>
+
         <div className="flex flex-wrap p-2   gap-3 max-h-[40vh] overflow-y-scroll shadow-xl bg-slate-100 rounded-lg">
-          {watchedEmployees.map((emp, index) => (
-            <EmployeesSelectionItem
-              key={index + "-request-form-employee"}
-              index={index}
-              employeeData={emp}
-            />
-          ))}
+          {filteredEmployees.length === 0 ? (
+            <p className="text-gray-500 text-center py-4 w-full">
+              {t("home.noEmployees")}
+            </p>
+          ) : (
+            filteredEmployees.map((emp) => {
+              const fullIndex = watchedEmployees.findIndex(
+                (we) => we.id === emp.id,
+              );
+              return (
+                <EmployeesSelectionItem
+                  key={emp.id + "-request-form-employee"}
+                  index={fullIndex}
+                  employeeData={emp}
+                />
+              );
+            })
+          )}
         </div>
       </div>
     </div>

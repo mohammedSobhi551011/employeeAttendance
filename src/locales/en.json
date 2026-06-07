@@ -110,6 +110,7 @@
     "added": "Employee added successfully",
     "transportationLabel": "Transportation",
     "transportationPlaceholder": "Transportation",
+    "searchPlaceholder": "Search by name, job number or transportation...",
     "create-form": {
       "name-min-error": "Name is required and must be at least 3 characters",
       "name-max-error": "Name should not exceed 25 characters",
@@ -166,9 +167,10 @@
     "error": "Invalid credentials"
   },
   "general": {
-    "unknownError": "Unkown error",
+    "unknownError": "Unknown error",
     "table-empty-data": "No data available",
-    "print-hint": "You can press Ctrl+P to print"
+    "print-hint": "You can press Ctrl+P to print",
+    "search-placeholder": "Search employees by name or job number"
   },
   "import": {
     "success": "Import successful",

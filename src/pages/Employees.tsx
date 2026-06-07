@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Table } from "../components/ui/Table";
-import { Button } from "../components/ui/Button";
+import { Button } from "../components/ui/button";
 import { Modal } from "../components/ui/Modal";
+import { Input } from "../components/ui/Input";
 import toast from "react-hot-toast";
 import { useAttendance } from "../hooks/useAttendance";
 import { ArrowDown, ArrowUp, Edit, Plus, Trash } from "lucide-react";
@@ -22,6 +23,18 @@ export const Employees = () => {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [deleteConfirmEmployee, setDeleteConfirmEmployee] =
     useState<Employee | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredEmployees = useMemo(() => {
+    return employees.filter((emp) => {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        emp.name?.toLowerCase().includes(searchLower) ||
+        emp.jobNumber?.toLowerCase().includes(searchLower) ||
+        emp.transportation?.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [employees, searchTerm]);
 
   const handleDelete = async (id: string | null) => {
     if (!id) return;
@@ -64,7 +77,7 @@ export const Employees = () => {
           </Button>
           <Button
             onClick={() => setDeleteConfirmEmployee(row)}
-            variant="danger"
+            variant="destructive"
             size="sm"
           >
             <Trash size={16} />
@@ -119,7 +132,7 @@ export const Employees = () => {
             <Button
               onClick={() => setIsModalOpen(true)}
               size="sm"
-              variant="primary"
+              variant="default"
               className="w-full md:w-auto flex items-center justify-center gap-2"
             >
               <Plus size={20} />
@@ -127,11 +140,22 @@ export const Employees = () => {
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="mb-6">
+          <Input
+            type="text"
+            placeholder={t("employees.searchPlaceholder")}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full md:max-w-md"
+          />
+        </div>
+
         {/* Desktop Table View */}
         <div className="hidden md:block bg-white rounded-lg shadow-md overflow-hidden">
           <Table
             columns={columns}
-            data={employees.map((emp, index) => ({
+            data={filteredEmployees.map((emp, index) => ({
               ...emp,
               actions: "",
               _rowNumber: index + 1,
@@ -196,7 +220,7 @@ export const Employees = () => {
             </Button>
             <Button
               type="submit"
-              variant="danger"
+              variant="destructive"
               onClick={() => handleDelete(deleteConfirmEmployee?.id || "")}
             >
               {t("employees.delete")}

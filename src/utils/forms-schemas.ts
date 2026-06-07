@@ -4,6 +4,7 @@ import { TFunction } from "i18next";
 
 export const AttendanceFormSchema = (t: TFunction) =>
   z.object({
+    employeesSearchTerm: z.string(),
     employeesData: z
       .array(
         z.object({
@@ -103,6 +104,7 @@ export const OvertimeRequestFormSchema = (t: TFunction) =>
     date: z.string().nonempty("Date must be selected."),
     fromTime: z.string().nonempty(),
     toTime: z.string().nonempty(),
+    employeesSearchTerm: z.string(),
     employees: z
       .array(
         z.object({
@@ -132,6 +134,7 @@ export const OvertimeReportFilterFormSchema = () =>
   z.object({
     fromDate: z.string(),
     toDate: z.string(),
+    searchTerm: z.string(),
     overtimeHours: z.object({
       number: z.string(),
       condition: z.enum(ComparisonCondition),
@@ -148,6 +151,7 @@ export type OvertimeReportFilterData = InferSchema<
 export const MealsFormSchema = (t: TFunction) =>
   z.object({
     date: z.string(),
+    employeesSearchTerm: z.string(),
     employees: z
       .array(
         z.object({

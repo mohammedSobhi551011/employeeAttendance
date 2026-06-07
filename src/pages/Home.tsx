@@ -1,7 +1,6 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Table } from "../components/ui/Table";
-import { Button } from "../components/ui/Button";
 import { Modal } from "../components/ui/Modal";
 import { ArrowDown, ArrowUp, Edit, Trash2 } from "lucide-react";
 import { AttendanceRecord, ITableColumn } from "../types";
@@ -16,6 +15,7 @@ import {
   exportAttendanceRecords,
   importAttendanceRecords,
 } from "../utils/storage";
+import { Button } from "@/components/ui/button";
 
 export const Home = () => {
   const { employees } = useEmployees();
@@ -124,7 +124,6 @@ export const Home = () => {
         <div className="flex gap-2">
           <Button
             size="sm"
-            variant="primary"
             onClick={() => {
               setEditingRecord(record);
             }}
@@ -133,7 +132,7 @@ export const Home = () => {
           </Button>
           <Button
             size="sm"
-            variant="danger"
+            variant="destructive"
             onClick={() => {
               setDeletingRecord(record);
             }}

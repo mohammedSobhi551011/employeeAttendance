@@ -20,6 +20,7 @@ export const OvertimeReport = () => {
   const toDate = form.watch("toDate");
   const watchedOvertimeHours = form.watch("overtimeHours");
   const watchedOvertimeDays = form.watch("overtimeDays");
+  const watchedSearchTerm = form.watch("searchTerm");
 
   const handleSearch = async (
     data: Pick<OvertimeReportFilterData, "fromDate" | "toDate">,
@@ -92,38 +93,52 @@ export const OvertimeReport = () => {
     },
   ];
 
-  const formattedOvertimeData = useMemo(
-    () =>
-      applyOvertimeFilters(
-        overtimeData
-          .filter((record) => record[2] > 0)
-          .map((record, idx) => ({
-            ...record,
-            id: idx + "-overtime", // Add an id for React key
-            _rowNumber: idx + 1,
-            employeeName: record[1],
-            totalHours: record[2],
-            totalOvertimeDays: record[3],
-          })),
-        {
-          days: {
-            value: watchedOvertimeDays.number,
-            condition: watchedOvertimeDays.condition,
-          },
-          hours: {
-            value: watchedOvertimeHours.number,
-            condition: watchedOvertimeHours.condition,
-          },
+  const formattedOvertimeData = useMemo(() => {
+    let data = applyOvertimeFilters(
+      overtimeData
+        .filter((record) => record[2] > 0)
+        .map((record, idx) => ({
+          ...record,
+          id: idx + "-overtime", // Add an id for React key
+          _rowNumber: idx + 1,
+          employeeName: record[1],
+          totalHours: record[2],
+          totalOvertimeDays: record[3],
+        })),
+      {
+        days: {
+          value: watchedOvertimeDays.number,
+          condition: watchedOvertimeDays.condition,
         },
-      ),
-    [
-      overtimeData,
-      watchedOvertimeDays.number,
-      watchedOvertimeHours.number,
-      watchedOvertimeDays.condition,
-      watchedOvertimeHours.condition,
-    ],
-  );
+        hours: {
+          value: watchedOvertimeHours.number,
+          condition: watchedOvertimeHours.condition,
+        },
+      },
+    );
+
+    if (watchedSearchTerm.trim().length > 0) {
+      const term = watchedSearchTerm.toLowerCase();
+      data = data.filter(
+        (row) =>
+          row.employeeName.toLowerCase().includes(term) ||
+          overtimeData
+            .find((record) => record[1] === row.employeeName)?.[4]
+            ?.toString()
+            .toLowerCase()
+            .includes(term),
+      );
+    }
+
+    return data;
+  }, [
+    overtimeData,
+    watchedOvertimeDays.number,
+    watchedOvertimeHours.number,
+    watchedOvertimeDays.condition,
+    watchedOvertimeHours.condition,
+    watchedSearchTerm,
+  ]);
 
   return (
     <form className="min-h-screen bg-gray-50 py-8">
@@ -231,6 +246,21 @@ export const OvertimeReport = () => {
                       </option>
                     ))}
                   </select>
+                )}
+              />
+            </div>
+            {/* Search Input */}
+            <div className="col-span-2">
+              <Controller
+                control={form.control}
+                name="searchTerm"
+                render={({ field }) => (
+                  <Input
+                    type="text"
+                    placeholder={t("general.search-placeholder")}
+                    {...field}
+                    label={t("home.filterByEmployee")}
+                  />
                 )}
               />
             </div>

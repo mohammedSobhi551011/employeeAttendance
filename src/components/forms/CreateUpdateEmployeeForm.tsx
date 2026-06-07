@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Input } from "../ui/Input";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { Employee } from "../../types";
 import { useEmployees } from "../../contexts/Employees";
 import useZodSchema from "../../hooks/useZodSchema";
