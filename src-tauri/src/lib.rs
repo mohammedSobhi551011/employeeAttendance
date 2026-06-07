@@ -13,6 +13,9 @@ struct Employee {
   name: Option<String>,
   jobNumber: Option<String>,
   transportation: Option<String>,
+  position: Option<String>,
+  phone: Option<String>,
+  stamp: Option<String>,
 }
 
 #[allow(non_snake_case)]
@@ -55,7 +58,10 @@ fn init_db(path: &PathBuf) -> Result<(), String> {
       id TEXT PRIMARY KEY,
       name TEXT,
       jobNumber TEXT,
-      transportation TEXT
+      transportation TEXT,
+      position TEXT,
+      phone TEXT,
+      stamp TEXT
     );
     CREATE TABLE IF NOT EXISTS attendance (
       id TEXT PRIMARY KEY,
@@ -70,6 +76,12 @@ fn init_db(path: &PathBuf) -> Result<(), String> {
     COMMIT;",
   )
   .map_err(|e| e.to_string())?;
+
+  // Migration: Add new columns if they don't exist
+  let _ = conn.execute("ALTER TABLE employees ADD COLUMN position TEXT", []);
+  let _ = conn.execute("ALTER TABLE employees ADD COLUMN phone TEXT", []);
+  let _ = conn.execute("ALTER TABLE employees ADD COLUMN stamp TEXT", []);
+
   Ok(())
 }
 
@@ -78,7 +90,7 @@ fn get_employees(db_path: tauri::State<'_, String>) -> Result<Vec<Employee>, Str
 
   let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
   let mut stmt = conn
-    .prepare("SELECT id, name, jobNumber, transportation FROM employees")
+    .prepare("SELECT id, name, jobNumber, transportation, position, phone, stamp FROM employees")
     .map_err(|e| e.to_string())?;
   let rows = stmt
     .query_map([], |row| {
@@ -87,6 +99,9 @@ fn get_employees(db_path: tauri::State<'_, String>) -> Result<Vec<Employee>, Str
         name: row.get(1)?,
         jobNumber: row.get(2)?,
         transportation: row.get(3)?,
+        position: row.get(4)?,
+        phone: row.get(5)?,
+        stamp: row.get(6)?,
       })
     })
     .map_err(|e| e.to_string())?;
@@ -101,8 +116,8 @@ fn get_employees(db_path: tauri::State<'_, String>) -> Result<Vec<Employee>, Str
 fn add_employee(db_path: tauri::State<'_, String>, emp: Employee) -> Result<Employee, String> {
   let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
   conn.execute(
-    "INSERT INTO employees (id, name, jobNumber, transportation) VALUES (?1,?2,?3,?4)",
-    params![emp.id, emp.name, emp.jobNumber, emp.transportation],
+    "INSERT INTO employees (id, name, jobNumber, transportation, position, phone, stamp) VALUES (?1,?2,?3,?4,?5,?6,?7)",
+    params![emp.id, emp.name, emp.jobNumber, emp.transportation, emp.position, emp.phone, emp.stamp],
   )
   .map_err(|e| e.to_string())?;
   Ok(emp)
@@ -112,8 +127,8 @@ fn add_employee(db_path: tauri::State<'_, String>, emp: Employee) -> Result<Empl
 fn update_employee(db_path: tauri::State<'_, String>, id: String, updated: Employee) -> Result<Option<Employee>, String> {
   let conn = Connection::open(&*db_path).map_err(|e| e.to_string())?;
   conn.execute(
-    "UPDATE employees SET name=?1, jobNumber=?2, transportation=?3 WHERE id=?4",
-    params![updated.name, updated.jobNumber, updated.transportation, id],
+    "UPDATE employees SET name=?1, jobNumber=?2, transportation=?3, position=?4, phone=?5, stamp=?6 WHERE id=?7",
+    params![updated.name, updated.jobNumber, updated.transportation, updated.position, updated.phone, updated.stamp, id],
   )
   .map_err(|e| e.to_string())?;
   Ok(Some(updated))
@@ -299,13 +314,16 @@ fn import_employees(
 
     for emp in parsed_data.employees {
         conn.execute(
-            "INSERT OR REPLACE INTO employees (id, name, jobNumber, transportation)
-              VALUES (?1, ?2, ?3, ?4)",
+            "INSERT OR REPLACE INTO employees (id, name, jobNumber, transportation, position, phone, stamp)
+              VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
             params![
                 emp.id,
                 emp.name,
                 emp.jobNumber,
-                emp.transportation
+                emp.transportation,
+                emp.position,
+                emp.phone,
+                emp.stamp
             ],
         )
         .map_err(|e| e.to_string())?;

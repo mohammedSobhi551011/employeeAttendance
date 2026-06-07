@@ -11,6 +11,9 @@ export interface Employee {
   name: string | null;
   jobNumber: string | null;
   transportation: string | null;
+  position: string | null;
+  phone: string | null;
+  stamp: string | null;
 }
 
 export interface AttendanceRecord {

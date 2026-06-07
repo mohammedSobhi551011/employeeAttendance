@@ -41,6 +41,18 @@ export const EmployeeFormSchema = (t: TFunction) =>
       .string()
       .min(3, t("employees.create-form.transportation-min-error"))
       .max(20, t("employees.create-form.transportation-max-error")),
+    position: z
+      .string()
+      .min(3, t("employees.create-form.position-min-error"))
+      .max(20, t("employees.create-form.position-max-error")),
+    phone: z
+      .string()
+      .min(11, t("employees.create-form.phone-min-error"))
+      .max(15, t("employees.create-form.phone-max-error")),
+    stamp: z
+      .string()
+      .min(3, t("employees.create-form.stamp-min-error"))
+      .max(20, t("employees.create-form.stamp-max-error")),
   });
 
 export type EmployeeFormData = InferSchema<typeof EmployeeFormSchema>;

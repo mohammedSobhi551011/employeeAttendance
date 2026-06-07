@@ -108,16 +108,28 @@
     "updated": "Employee updated successfully",
     "canceled": "Update canceled",
     "added": "Employee added successfully",
-    "transportationLabel": "Transportation",
+    "transportationLabel": "Transportation *",
     "transportationPlaceholder": "Transportation",
-    "searchPlaceholder": "Search by name, job number or transportation...",
+    "positionLabel": "Position *",
+    "positionPlaceholder": "Position",
+    "phoneLabel": "Phone Number *",
+    "phonePlaceholder": "Phone Number",
+    "stampLabel": "Stamp *",
+    "stampPlaceholder": "Stamp",
+    "searchPlaceholder": "Search by name, job number, transportation, position, phone or stamp...",
     "create-form": {
       "name-min-error": "Name is required and must be at least 3 characters",
       "name-max-error": "Name should not exceed 25 characters",
       "jobNumber-min-error": "Job number is required and must be a number",
       "jobNumber-max-error": "Job number should not exceed 6 digits",
       "transportation-min-error": "Transportation is required and must be at least 3 characters",
-      "transportation-max-error": "Transportation should not exceed 20 characters"
+      "transportation-max-error": "Transportation should not exceed 20 characters",
+      "position-min-error": "Position is required and must be at least 3 characters",
+      "position-max-error": "Position should not exceed 20 characters",
+      "phone-min-error": "Phone number is required and must be at least 11 digits",
+      "phone-max-error": "Phone number should not exceed 15 digits",
+      "stamp-min-error": "Stamp is required and must be at least 3 characters",
+      "stamp-max-error": "Stamp should not exceed 20 characters"
     }
   },
   "overtime": {

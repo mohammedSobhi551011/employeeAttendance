@@ -31,7 +31,10 @@ export const Employees = () => {
       return (
         emp.name?.toLowerCase().includes(searchLower) ||
         emp.jobNumber?.toLowerCase().includes(searchLower) ||
-        emp.transportation?.toLowerCase().includes(searchLower)
+        emp.transportation?.toLowerCase().includes(searchLower) ||
+        emp.position?.toLowerCase().includes(searchLower) ||
+        emp.phone?.toLowerCase().includes(searchLower) ||
+        emp.stamp?.toLowerCase().includes(searchLower)
       );
     });
   }, [employees, searchTerm]);
@@ -54,14 +57,26 @@ export const Employees = () => {
       label: i18n.language === "ar" ? "م" : "No.",
       render: (_, __, index) => index + 1,
     },
-    { key: "name", label: t ? t("employees.nameLabel") : "Employee Name" },
+    { key: "name", label: t ? t("employees.nameLabel") : "Employee Name *" },
     {
       key: "jobNumber",
-      label: t ? t("employees.jobNumberLabel") : "Job Number",
+      label: t ? t("employees.jobNumberLabel") : "Job Number *",
+    },
+    {
+      key: "position",
+      label: t ? t("employees.positionLabel") : "Position *",
+    },
+    {
+      key: "phone",
+      label: t ? t("employees.phoneLabel") : "Phone *",
     },
     {
       key: "transportation",
-      label: t ? t("employees.transportationLabel") : "Transportation",
+      label: t ? t("employees.transportationLabel") : "Transportation *",
+    },
+    {
+      key: "stamp",
+      label: t ? t("employees.stampLabel") : "Stamp *",
     },
     {
       key: "actions",

@@ -33,11 +33,17 @@ function CreateUpdateEmployeeForm({
             name: action.employee.name || "",
             jobNumber: action.employee.jobNumber || "",
             transportation: action.employee.transportation || "",
+            position: action.employee.position || "",
+            phone: action.employee.phone || "",
+            stamp: action.employee.stamp || "",
           }
         : {
             name: "",
             jobNumber: "",
             transportation: "",
+            position: "",
+            phone: "",
+            stamp: "",
           },
     resolver: zodResolver(schema),
   });
@@ -49,6 +55,9 @@ function CreateUpdateEmployeeForm({
           name: data.name,
           jobNumber: data.jobNumber,
           transportation: data.transportation,
+          position: data.position,
+          phone: data.phone,
+          stamp: data.stamp,
         });
         toast.success(t ? t("employees.added") : "Employee added successfully");
         onSuccess();
@@ -58,6 +67,9 @@ function CreateUpdateEmployeeForm({
           name: data.name,
           jobNumber: data.jobNumber,
           transportation: data.transportation,
+          position: data.position,
+          phone: data.phone,
+          stamp: data.stamp,
         });
         toast.success(
           t ? t("employees.updated") : "Employee updated successfully",
@@ -113,8 +125,50 @@ function CreateUpdateEmployeeForm({
           />
         )}
       />
+      <Controller
+        control={form.control}
+        name="position"
+        render={({ field, fieldState }) => (
+          <Input
+            label={t ? t("employees.positionLabel") : "Position *"}
+            placeholder={
+              t ? t("employees.positionPlaceholder") : "e.g., Operator"
+            }
+            {...field}
+            error={fieldState.error?.message}
+          />
+        )}
+      />
+      <Controller
+        control={form.control}
+        name="phone"
+        render={({ field, fieldState }) => (
+          <Input
+            label={t ? t("employees.phoneLabel") : "Phone Number *"}
+            placeholder={
+              t ? t("employees.phonePlaceholder") : "e.g., 01234567890"
+            }
+            {...field}
+            error={fieldState.error?.message}
+          />
+        )}
+      />
+      <Controller
+        control={form.control}
+        name="stamp"
+        render={({ field, fieldState }) => (
+          <Input
+            label={t ? t("employees.stampLabel") : "Stamp *"}
+            placeholder={
+              t ? t("employees.stampPlaceholder") : "e.g., STAMP-001"
+            }
+            {...field}
+            error={fieldState.error?.message}
+          />
+        )}
+      />
       <div className="flex items-center gap-2">
-        <Button type="submit" variant="primary">
+        <Button type="submit" variant="default">
           {action.type === "create"
             ? t("employees.add")
             : t("employees.update")}

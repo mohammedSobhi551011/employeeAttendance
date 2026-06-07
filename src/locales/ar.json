@@ -108,16 +108,28 @@
     "updated": "تم تحديث الموظف بنجاح",
     "canceled": "تم إلغاء التحديث",
     "added": "تم إضافة الموظف بنجاح",
-    "transportationLabel": "الدورة",
+    "transportationLabel": "الدورة *",
     "transportationPlaceholder": "الدورة",
-    "searchPlaceholder": "بحث بالاسم، رقم الوظيفة أو الدورة...",
+    "positionLabel": "الوظيفة *",
+    "positionPlaceholder": "الوظيفة",
+    "phoneLabel": "رقم الهاتف *",
+    "phonePlaceholder": "رقم الهاتف",
+    "stampLabel": "الختم *",
+    "stampPlaceholder": "الختم",
+    "searchPlaceholder": "بحث بالاسم، رقم الوظيفة، الدورة، الوظيفة، الهاتف أو الختم...",
     "create-form": {
       "name-min-error": "الاسم مطلوب و يجب أن يكون على الأقل 3 أحرف",
       "name-max-error": "يجب الا يتخطى الاسم 25 حرفاً",
       "jobNumber-min-error": "رقم الوظيفة مطلوب و يجب أن يكون رقمًا",
       "jobNumber-max-error": "رقم الوظيفة يجب الا يتخظى 6 ارقام",
       "transportation-min-error": "الدورة مطلوبة و يجب أن تكون على الأقل 3 أحرف",
-      "transportation-max-error": "الدورة يجب الا تتخطي 20 حرفاً"
+      "transportation-max-error": "الدورة يجب الا تتخطي 20 حرفاً",
+      "position-min-error": "الوظيفة مطلوبة و يجب أن تكون على الأقل 3 أحرف",
+      "position-max-error": "الوظيفة يجب الا تتخطى 20 حرفاً",
+      "phone-min-error": "رقم الهاتف مطلوب و يجب أن يكون على الأقل 11 رقمًا",
+      "phone-max-error": "رقم الهاتف يجب الا يتخطى 15 رقمًا",
+      "stamp-min-error": "الختم مطلوب و يجب أن يكون على الأقل 3 أحرف",
+      "stamp-max-error": "الختم يجب الا يتخطى 20 حرفاً"
     }
   },
   "overtime": {
