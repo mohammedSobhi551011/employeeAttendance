@@ -170,6 +170,7 @@
     "unknownError": "Unknown error",
     "table-empty-data": "No data available",
     "print-hint": "You can press Ctrl+P to print",
+    "search": "Search",
     "search-placeholder": "Search employees by name or job number"
   },
   "import": {

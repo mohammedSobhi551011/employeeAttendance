@@ -32,7 +32,7 @@ export interface AttendanceFilter {
   status: string | null;
 }
 
-export type OvertimeRecord = [string, string, number, number]; // [employeeId, name, totalOvertimeHours,total_overtime_days]
+export type OvertimeRecord = [string, string, number, number, string]; // [employeeId, name, totalOvertimeHours, total_overtime_days, jobNumber]
 
 export const ComparisonCondition = ["Equal", "Greater", "Less"] as const;
 export type TComparisonCondition = "Greater" | "Less" | "Equal";

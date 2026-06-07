@@ -170,6 +170,7 @@
     "unknownError": "حدث خطأ غير معروف",
     "table-empty-data": "لا يوجد بيانات",
     "print-hint": "يمكنك الضغط على Ctrl+P للطباعة",
+    "search": "بحث",
     "search-placeholder": "ابحث عن الموظفين بالاسم أو رقم الوظيفة"
   },
   "import": {

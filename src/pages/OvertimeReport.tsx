@@ -9,10 +9,20 @@ import { Controller } from "react-hook-form";
 import { Input } from "../components/ui/Input";
 import { OvertimeReportFilterData } from "../utils/forms-schemas";
 import { applyOvertimeFilters } from "../utils/helpers";
+import { useEmployees } from "../contexts/Employees";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/Select";
+import { Label } from "../components/ui/label";
 
 export const OvertimeReport = () => {
   const { t, i18n } = useTranslation();
   const { reportFilterForm: form } = useOvertime();
+  const { employees } = useEmployees();
 
   const [overtimeData, setOvertimeData] = useState<OvertimeRecord[]>([]);
 
@@ -21,6 +31,7 @@ export const OvertimeReport = () => {
   const watchedOvertimeHours = form.watch("overtimeHours");
   const watchedOvertimeDays = form.watch("overtimeDays");
   const watchedSearchTerm = form.watch("searchTerm");
+  const watchedEmployeeId = form.watch("employeeId");
 
   const handleSearch = async (
     data: Pick<OvertimeReportFilterData, "fromDate" | "toDate">,
@@ -64,14 +75,11 @@ export const OvertimeReport = () => {
       handleSearch({ fromDate, toDate });
   }, [fromDate, toDate]);
 
-  const totalOvertime = useMemo(() => {
-    return overtimeData.reduce((sum, record) => sum + (record[2] || 0), 0);
-  }, [overtimeData]);
-
   const columns: ITableColumn<{
     id: string;
     _rowNumber: number;
     employeeName: string;
+    jobNumber: string;
     totalHours: number;
     totalOvertimeDays: number;
   }>[] = [
@@ -96,14 +104,18 @@ export const OvertimeReport = () => {
   const formattedOvertimeData = useMemo(() => {
     let data = applyOvertimeFilters(
       overtimeData
-        .filter((record) => record[2] > 0)
+        .filter((record) => {
+          const matchesEmployee =
+            !watchedEmployeeId || record[0] === watchedEmployeeId;
+          return record[2] > 0 && matchesEmployee;
+        })
         .map((record, idx) => ({
-          ...record,
           id: idx + "-overtime", // Add an id for React key
           _rowNumber: idx + 1,
           employeeName: record[1],
           totalHours: record[2],
           totalOvertimeDays: record[3],
+          jobNumber: record[4],
         })),
       {
         days: {
@@ -122,11 +134,7 @@ export const OvertimeReport = () => {
       data = data.filter(
         (row) =>
           row.employeeName.toLowerCase().includes(term) ||
-          overtimeData
-            .find((record) => record[1] === row.employeeName)?.[4]
-            ?.toString()
-            .toLowerCase()
-            .includes(term),
+          row.jobNumber.toLowerCase().includes(term),
       );
     }
 
@@ -138,7 +146,15 @@ export const OvertimeReport = () => {
     watchedOvertimeDays.condition,
     watchedOvertimeHours.condition,
     watchedSearchTerm,
+    watchedEmployeeId,
   ]);
+
+  const totalOvertime = useMemo(() => {
+    return formattedOvertimeData.reduce(
+      (sum, record) => sum + (record.totalHours || 0),
+      0,
+    );
+  }, [formattedOvertimeData]);
 
   return (
     <form className="min-h-screen bg-gray-50 py-8">
@@ -185,35 +201,75 @@ export const OvertimeReport = () => {
                 )}
               />
             </div>
+            {/* Employee Selector */}
+            <div className="col-span-2">
+              <Label htmlFor="employee-select">
+                {t("home.filterByEmployee")}
+              </Label>
+              <Controller
+                control={form.control}
+                name="employeeId"
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(val) => field.onChange(val === "all" ? null : val)}
+                    value={field.value || "all"}
+                  >
+                    <SelectTrigger id="employee-select" className="w-full">
+                      <SelectValue
+                        placeholder={t("home.filterByEmployee")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">
+                        {i18n.language === "ar" ? "كل الموظفين" : "All Employees"}
+                      </SelectItem>
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.id} value={emp.id}>
+                          {emp.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
             <div className="flex gap-2">
               <Controller
                 control={form.control}
                 name="overtimeHours.number"
                 render={({ field }) => (
-                  <Input
-                    type="number"
-                    value={field.value?.toString() || ""}
-                    onChange={field.onChange}
-                    label={t("overtime.report.overtimeHours")}
-                    id="to-date"
-                  />
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      value={field.value?.toString() || ""}
+                      onChange={field.onChange}
+                      label={t("overtime.report.overtimeHours")}
+                      id="overtime-hours"
+                    />
+                  </div>
                 )}
               />
               <Controller
                 control={form.control}
                 name="overtimeHours.condition"
                 render={({ field }) => (
-                  <select
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {ComparisonCondition.map((condition) => (
-                      <option key={condition} value={condition}>
-                        {t ? t(`conditions.${condition}`) : condition}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex flex-col justify-end min-w-[120px]">
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || "Equal"}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ComparisonCondition.map((condition) => (
+                          <SelectItem key={condition} value={condition}>
+                            {t ? t(`conditions.${condition}`) : condition}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 )}
               />
             </div>
@@ -222,30 +278,38 @@ export const OvertimeReport = () => {
                 control={form.control}
                 name="overtimeDays.number"
                 render={({ field }) => (
-                  <Input
-                    type="number"
-                    value={field.value?.toString() || ""}
-                    onChange={field.onChange}
-                    label={t("overtime.report.overtimeDays")}
-                    id="to-date"
-                  />
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      value={field.value?.toString() || ""}
+                      onChange={field.onChange}
+                      label={t("overtime.report.overtimeDays")}
+                      id="overtime-days"
+                    />
+                  </div>
                 )}
               />
               <Controller
                 control={form.control}
                 name="overtimeDays.condition"
                 render={({ field }) => (
-                  <select
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    {ComparisonCondition.map((condition) => (
-                      <option key={condition} value={condition}>
-                        {t ? t(`conditions.${condition}`) : condition}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="flex flex-col justify-end min-w-[120px]">
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || "Equal"}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {ComparisonCondition.map((condition) => (
+                          <SelectItem key={condition} value={condition}>
+                            {t ? t(`conditions.${condition}`) : condition}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 )}
               />
             </div>
@@ -259,7 +323,7 @@ export const OvertimeReport = () => {
                     type="text"
                     placeholder={t("general.search-placeholder")}
                     {...field}
-                    label={t("home.filterByEmployee")}
+                    label={t("general.search")}
                   />
                 )}
               />

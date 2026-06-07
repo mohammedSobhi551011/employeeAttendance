@@ -41,6 +41,7 @@ export default function OvertimeProvider({
       fromDate: getTodayDate(),
       toDate: getTodayDate(),
       searchTerm: "",
+      employeeId: null,
       overtimeDays: {
         condition: "Equal",
         number: "",

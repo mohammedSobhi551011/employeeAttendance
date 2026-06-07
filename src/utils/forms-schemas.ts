@@ -135,6 +135,7 @@ export const OvertimeReportFilterFormSchema = () =>
     fromDate: z.string(),
     toDate: z.string(),
     searchTerm: z.string(),
+    employeeId: z.string().nullable(),
     overtimeHours: z.object({
       number: z.string(),
       condition: z.enum(ComparisonCondition),
