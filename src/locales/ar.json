@@ -160,7 +160,8 @@
       "toTime": "إلى",
       "selectEmployeesLabel": "اختر الموظفين * ({{count}} مختار)",
       "selectAll": "تحديد الكل",
-      "selectEmployeesWarning": "يرجى اختيار موظف واحد على الأقل"
+      "selectEmployeesWarning": "يرجى اختيار موظف واحد على الأقل",
+      "overnight": "تطبيق"
     }
   },
   "meals": {
