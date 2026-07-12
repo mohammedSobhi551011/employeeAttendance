@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import { useOvertime } from "../contexts/Overtime";
+import { t } from "i18next";
 
 const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
   const { requestForm: form } = useOvertime();
@@ -24,24 +25,24 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
       {/* Second-Header */}
       <div className="flex justify-start relative my-8 ">
         <div className=" whitespace-normal wrap-break-word w-25 text-center font-bold text-xs">
-          <div className=" p-1 border border-b-0">
+          <div className=" p-1 border border-b-0 border-black">
             <span>Q.C Department</span>
           </div>
-          <div className=" p-1 border ">
+          <div className=" p-1 border  border-black">
             <span>Administrative MGR.</span>
           </div>
         </div>
         <table className=" absolute left-1/2 -translate-x-1/2 top-0 text-xs border-collapse border">
           <tbody>
             <tr className="font-bold">
-              <td className="border p-1 pe-8 ">
+              <td className="border p-1 pe-8 border-black">
                 <div className="flex items-center justify-start gap-x-2">
                   <span className="w-4 h-4 bg-black" />
 
                   {selectedDate.toLocaleDateString("en", { weekday: "long" })}
                 </div>
               </td>
-              <td className="border p-1 px-4 ">
+              <td className="border p-1 px-4 border-black">
                 {selectedDate.toLocaleDateString("en-gb")}
               </td>
             </tr>
@@ -100,7 +101,7 @@ const OvertimeRequestPreview = forwardRef<HTMLDivElement>((_props, ref) => {
         <tbody>
           {selectedEmployees.map((emp, index) => (
             <tr key={emp.id + "-request"}>
-              <td></td>
+              <td>{emp.overnight && t("overtime.request.overnight")}</td>
               <td></td>
               <td>{index + 1}</td>
               <td></td>

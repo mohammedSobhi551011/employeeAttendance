@@ -126,6 +126,7 @@ export const OvertimeRequestFormSchema = (t: TFunction) =>
           transportation: z.string().nullable(),
           jobNumber: z.string().nullable(),
           selected: z.boolean(),
+          overnight: z.boolean(),
           from: z
             .string()
             .optional()

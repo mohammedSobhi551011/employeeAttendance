@@ -160,7 +160,8 @@
       "toTime": "To",
       "selectEmployeesLabel": "Select Employees * ({{count}} selected)",
       "selectAll": "Select All",
-      "selectEmployeesWarning": "Please select at least one employee"
+      "selectEmployeesWarning": "Please select at least one employee",
+      "overnight": "Overnight"
     }
   },
   "meals": {

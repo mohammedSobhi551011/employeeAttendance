@@ -28,6 +28,7 @@ export default function OvertimeProvider({
       employees: employees.map((e) => ({
         ...e,
         selected: false,
+        overnight: false,
         from: "",
         to: "",
       })),

@@ -5,7 +5,6 @@ import { Input } from "../ui/Input";
 import { useTranslation } from "react-i18next";
 import { TimePickerInput } from "../ui/TimePickerInput";
 import { Employee } from "../../types";
-import { motion } from "framer-motion";
 
 function OvertimeRequestForm() {
   const { t } = useTranslation();
@@ -101,12 +100,18 @@ function OvertimeRequestForm() {
             }
             onChange={(e) => {
               const isChecked = e.currentTarget.checked;
-              const filteredIds = new Set(filteredEmployees.map((emp) => emp.id));
+              const filteredIds = new Set(
+                filteredEmployees.map((emp) => emp.id),
+              );
               form.setValue(
                 "employees",
                 watchedEmployees.map((emp) => {
                   if (filteredIds.has(emp.id)) {
-                    return { ...emp, selected: isChecked };
+                    return {
+                      ...emp,
+                      selected: isChecked,
+                      overnight: isChecked ? emp.overnight : false,
+                    };
                   }
                   return emp;
                 }),
@@ -156,7 +161,7 @@ function OvertimeRequestForm() {
 }
 
 interface IEmployeesSelectionItemProps {
-  employeeData: Employee & {
+  employeeData: Pick<Employee, "name"> & {
     selected: boolean;
     from?: string | undefined;
     to?: string | undefined;
@@ -171,33 +176,57 @@ const EmployeesSelectionItem = ({
   const { t } = useTranslation();
   const { requestForm: form } = useOvertime();
   return (
-    <motion.div
-      whileTap={{ scale: 0.95 }}
-      className={`gap-2 p-4 border rounded-xl ${emp.selected ? "bg-blue-100 hover:bg-blue-200 border-blue-300" : "border-stone-400 hover:bg-stone-200 bg-stone-100"} transition-colors hover:cursor-pointer`}
-      id="item-container"
-      onClick={(e) => {
-        if (e.currentTarget.id === "item-container") {
-          form.setValue(`employees.${index}.selected`, !emp.selected);
-        }
-      }}
+    <div
+      className={`gap-2 p-4 border rounded-xl ${emp.selected ? "bg-blue-100 hover:bg-blue-200 border-blue-300" : "border-stone-400 hover:bg-stone-200 bg-stone-100"} transition-colors `}
     >
       {/* Checkbox */}
-      <div className="flex items-center gap-2">
-        <Controller
-          control={form.control}
-          name={`employees.${index}.selected`}
-          render={({ field }) => (
-            <Input
-              type="checkbox"
-              onChange={field.onChange}
-              checked={field.value}
-              className="w-4 h-4"
-            />
-          )}
-        />
-        <label className={`text-sm md:text-base font-medium select-none `}>
-          {emp.name}
-        </label>
+      <div className="flex items-center justify-between">
+        <div className="flex gap-2 items-center">
+          <Controller
+            control={form.control}
+            name={`employees.${index}.selected`}
+            render={({ field }) => (
+              <Input
+                type="checkbox"
+                onChange={(e) => {
+                  field.onChange(e.currentTarget.checked);
+                  !e.currentTarget.checked &&
+                    form.resetField(`employees.${index}.overnight`, {
+                      defaultValue: false,
+                    });
+                }}
+                checked={field.value}
+                className="w-4 h-4"
+                id={`employee-name-${index}`}
+              />
+            )}
+          />
+          <label
+            htmlFor={`employee-name-${index}`}
+            className={`text-sm md:text-base font-medium select-none `}
+          >
+            {emp.name}
+          </label>
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor={`employee-overnight-${index}`}>
+            {t("overtime.request.overnight")}
+          </label>
+          <Controller
+            control={form.control}
+            name={`employees.${index}.overnight`}
+            render={({ field }) => (
+              <Input
+                id={`employee-overnight-${index}`}
+                disabled={!form.watch(`employees.${index}.selected`)}
+                type="checkbox"
+                className="w-4 h-4"
+                onChange={field.onChange}
+                checked={field.value}
+              />
+            )}
+          />
+        </div>
       </div>
 
       <div className="flex items-center gap-6 mt-4">
@@ -222,7 +251,7 @@ const EmployeesSelectionItem = ({
           )}
         />
       </div>
-    </motion.div>
+    </div>
   );
 };
 
